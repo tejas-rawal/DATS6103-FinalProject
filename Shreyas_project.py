@@ -16,7 +16,7 @@ data.columns
 # %%
 data.info()
 # %%
-data_subset = data[['year','bmi','q21','q41','q42','q43','q49','race4','race7','sex' ]]
+data_subset = data[['year','bmi','q34','q78','q79','q80','q89','race4','race7','sex' ]]
 data_subset.head()
 # %%
 data_2009 = data_subset[data_subset['year']>=2009]
@@ -115,11 +115,11 @@ data_2009.head()
 print(data_2009.dtypes)
   
 # converting 'Field_2' and 'Field_3' from float to int
-data_2009['q21'] = data_2009['q21'].apply(np.int64)
-data_2009['q41'] = data_2009['q41'].apply(np.int64)
-data_2009['q42'] = data_2009['q42'].apply(np.int64)
-data_2009['q43'] = data_2009['q43'].apply(np.int64)
-data_2009['q49'] = data_2009['q49'].apply(np.int64)
+data_2009['q34'] = data_2009['q34'].apply(np.int64)
+data_2009['q78'] = data_2009['q78'].apply(np.int64)
+data_2009['q79'] = data_2009['q79'].apply(np.int64)
+data_2009['q80'] = data_2009['q80'].apply(np.int64)
+data_2009['q89'] = data_2009['q89'].apply(np.int64)
 data_2009['race4'] = data_2009['race4'].apply(np.int64)
 data_2009['sex'] = data_2009['sex'].apply(np.int64)
   
@@ -128,7 +128,7 @@ print(data_2009.dtypes)
 
 #%%
 
-data_2009=data_2009.rename(columns={"q21": "Vape Use", "q41": "Physical Activity", "q42": "Television", "q43": "Electronic Devices", "q49": "Grades", "race4": "race"})
+data_2009=data_2009.rename(columns={"q34": "Vape_Use", "q78": "Physical_Activity", "q79": "Television", "q80": "Electronic_Devices", "q89": "Grades", "race4": "race"})
 data_2009=data_2009.reset_index()
 data_2009
 
@@ -137,5 +137,5 @@ import missingno as msno
 msno.bar(data_2009)
 
 # %%
-data_2009.to_csv('output.csv') 
+data_2009.to_csv('cleaned_data2.csv') 
 # %%
