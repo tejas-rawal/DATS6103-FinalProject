@@ -7,7 +7,7 @@ from IPython import get_ipython
 import warnings
 warnings.filterwarnings("ignore")
 # %%
-data = pd.read_csv('data.csv')
+data = pd.read_csv('/Users/carriemagee/Downloads/sadc_data.csv')
 
 # %%
 data.head()
@@ -16,7 +16,7 @@ data.columns
 # %%
 data.info()
 # %%
-data_subset = data[['year','bmi','q34','q78','q79','q80','q89','race4','race7','sex' ]]
+data_subset = data[['year','bmi','q34','q78','q79','q80','q89','race4','race7','sex',"stweight" ]]
 data_subset.head()
 # %%
 data_2009 = data_subset[data_subset['year']>=2009]
@@ -122,13 +122,14 @@ data_2009['q80'] = data_2009['q80'].apply(np.int64)
 data_2009['q89'] = data_2009['q89'].apply(np.int64)
 data_2009['race4'] = data_2009['race4'].apply(np.int64)
 data_2009['sex'] = data_2009['sex'].apply(np.int64)
+data_2009['stweight'] = data_2009['stweight'].apply(np.int64)
   
 # displaying the datatypes
 print(data_2009.dtypes)
 
 #%%
 
-data_2009=data_2009.rename(columns={"q34": "Vape_Use", "q78": "Physical_Activity", "q79": "Television", "q80": "Electronic_Devices", "q89": "Grades", "race4": "race"})
+data_2009=data_2009.rename(columns={"q34": "Vape_Use", "q78": "Physical_Activity", "q79": "Television", "q80": "Electronic_Devices", "q89": "Grades", "race4": "race", "stweight":"weight"})
 data_2009=data_2009.reset_index()
 data_2009
 
@@ -137,5 +138,5 @@ import missingno as msno
 msno.bar(data_2009)
 
 # %%
-data_2009.to_csv('cleaned_data2.csv') 
+data_2009.to_csv('cleaned_data3.csv') 
 # %%
