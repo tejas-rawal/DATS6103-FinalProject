@@ -64,7 +64,7 @@ data["Vape_Use"]=data["Vape_Use"].replace([1,2],[0,1])
 data.head()
 #%%
 #recoding data for logit regression
-xdata = data[["bmi","Physical_Activity","Television","Electronic_Devices","Grades","race","sex"]]
+xdata = data[["Television","Electronic_Devices","race"]]
 print(xdata.head())
 ydata = data[["Vape_Use"]]
 print(ydata.head())
@@ -100,7 +100,14 @@ if p <= alpha:
 else:
     print('Independent (H0 holds true)')
 #%%
+from sklearn.model_selection import train_test_split
+x_train, x_test, y_train, y_test = train_test_split(xdata, ydata, test_size=0.3, random_state=0)
+from sklearn.linear_model import LogisticRegression
+
+admitlogit = LogisticRegression()  # instantiate
+admitlogit.fit(x_train, y_train)
+print('Logit model accuracy (with the test set):', admitlogit.score(x_test, y_test))
+print('Logit model accuracy (with the train set):', admitlogit.score(x_train, y_train))
 
 
-
-
+# %%
