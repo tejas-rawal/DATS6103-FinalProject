@@ -1,4 +1,4 @@
-,index,year,bmi,Vape_Use,Physical_Activity,Television,Electronic_Devices,Grades,race,sex
+id,index,year,bmi,Vape_Use,Physical_Activity,Television,Electronic_Devices,Grades,race,sex
 0,173392,2015,24.7809,1,6,4,5,1,4,2
 1,173395,2015,38.2243,1,4,7,2,6,4,2
 2,173397,2015,27.8465,2,8,1,4,2,3,2
