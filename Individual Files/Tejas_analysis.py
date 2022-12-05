@@ -38,6 +38,8 @@ print(surveyDf.head())
 #%%
 # common data
 tv_answers = ['0', '< 1', '1', '2', '3', '4', '>= 5']
+phys_answers = ['0', '1', '2', '3' , '4', '5', '6', '7']
+race_groups = ['White', 'Black or African American', 'Hispanic/Latino', 'All Other Races']
 
 #%%
 # common functions
@@ -68,6 +70,12 @@ plt.xticks(list(range(7)), tv_answers)
 plt.show()
 
 # boxplot of BMI vs hours of TV
+sns.boxplot(y=surveyDf.bmi, x=surveyDf.Television, palette='husl')
+plt.title('BMI by hours of TV watched')
+plt.xlabel('TV watched (# of hours)')
+plt.ylabel('BMI (kg/in²)')
+plt.xticks(list(range(7)), tv_answers)
+plt.show()
 
 #%%[markdown]
 # The hypothesis setup for this test looks as follows:
@@ -103,7 +111,15 @@ sns.violinplot(y=surveyDf.bmi, x=surveyDf.Physical_Activity, alpha=0.6, palette=
 plt.title('BMI by hours of days with physical activity')
 plt.xlabel('Days physically active')
 plt.ylabel('BMI (kg/in²)')
-plt.xticks(list(range(7)), tv_answers)
+plt.xticks(list(range(len(phys_answers))), phys_answers)
+plt.show()
+
+# boxplot of BMI vs hours of TV
+sns.boxplot(y=surveyDf.bmi, x=surveyDf.Physical_Activity, palette='husl')
+plt.title('BMI by days with physical activity')
+plt.xlabel('Days physically active')
+plt.ylabel('BMI (kg/in²)')
+plt.xticks(list(range(len(phys_answers))), phys_answers)
 plt.show()
 
 #%%[markdown]
@@ -114,17 +130,17 @@ plt.show()
 # * alpha = 0.5
 #%%
 # code for ANOVA here
-unique_by_phy = get_unique(surveyDf, 'Physical_Activity')
-samples_by_phy = [
+unique_by_phys = get_unique(surveyDf, 'Physical_Activity')
+samples_by_phys = [
     surveyDf[surveyDf.Physical_Activity == answer]['bmi']
         for answer in unique_by_tv
 ]
 
 
-print("Total size: ", len(samples_by_phy))
-print("Size of each group: ", [len(sample) for sample in samples_by_phy])
+print("Total size: ", len(samples_by_phys))
+print("Size of each group: ", [len(sample) for sample in samples_by_phys])
 
-phy_anova_result = f_oneway(*samples_by_phy)
+phy_anova_result = f_oneway(*samples_by_phys)
 print("Physical activity ANOVA result:\n", phy_anova_result)
 
 #%%[markdown]
@@ -139,7 +155,15 @@ sns.violinplot(y=surveyDf.bmi, x=surveyDf.race, alpha=0.6, palette='husl')
 plt.title('BMI by race')
 plt.xlabel('Race')
 plt.ylabel('BMI (kg/in²)')
-plt.xticks(list(range(7)), tv_answers)
+plt.xticks(list(range(len(race_groups))), race_groups)
+plt.show()
+
+# boxplot of BMI vs hours of TV
+sns.boxplot(y=surveyDf.bmi, x=surveyDf.race, palette='husl')
+plt.title('BMI by race')
+plt.xlabel('Race')
+plt.ylabel('BMI (kg/in²)')
+plt.xticks(list(range(len(race_groups))), race_groups)
 plt.show()
 
 #%%[markdown]
@@ -167,4 +191,6 @@ print("Race ANOVA result:\n", race_anova_result)
 # Our results again yield a significant result. With a p-value close to 0, we must reject Hٖ₀ that the mean BMI of samples across race are equal. Our result indicates that the BMI is significantly different between children belonging to different race groups.
 
 #%%[markdown]
+# TODO: remove outliers and perform ANOVAs again
+
 # TODO: Perform some sort of supervised regression (linear, logistic, kNN, Random forest)?
