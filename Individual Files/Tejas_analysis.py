@@ -241,3 +241,7 @@ print("Sex ANOVA result:\n", sex_anova_result)
 # TODO: Perform supervised regression or classification (linear, logistic, kNN, Random forest)?
     # Age prediction?
     # race classification?
+
+#%%
+# code to add random number to column
+np.random.uniform(size=surveyDf.shape[0])
