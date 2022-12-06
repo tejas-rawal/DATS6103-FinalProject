@@ -18,22 +18,19 @@ from statsmodels.formula.api import glm
 
 
 #%%
-data = pd.read_csv("/Users/carriemagee/Downloads/cleaned_data2.csv")
+data = pd.read_csv("/Users/carriemagee/Downloads/DATS6103-FinalProject/cleaned_data3.csv")
 # In[176]:
 data
 #%%
 #recoding television from factors to numeric
 data["Television"]=data["Television"].replace([1,2,3,4,5,6,7],[0,0.5,1,2,3,4,5])
 data.head()
-#%%
 #recoding electronic devices from factors to numeric
 data["Electronic_Devices"]=data["Electronic_Devices"].replace([1,2,3,4,5,6,7],[0,0.5,1,2,3,4,5])
 data.head()
-#%%
 #recoding physical activity from factors to numeric
 data["Physical_Activity"]=data["Physical_Activity"].replace([1,2,3,4,5,6,7,8],[0,1,2,3,4,5,6,7])
 data.head()
-#%%
 data["Vape_Use"]=data["Vape_Use"].replace([1,2],["Yes","No"])
 data.head()
 #%%
@@ -47,20 +44,28 @@ data.head()
 #race visulization
 plt.figure(figsize=(8,4))
 sns.countplot(x=data["race"],data=data).set(title="Racial Makeup of Sample")
+plt.xlabel( "Race" , size = 12 )
+plt.ylabel( "Frequency" , size = 12 ) 
 #%%
 #race and vape visulization
 plt.figure(figsize=(9,4))
 sns.countplot(x=data["Vape_Use"],hue="race",data=data).set(title="Distribution of Vape Use by Race")
 #%%
 sns.boxplot(x="Vape_Use",y="Television", data=data)
+plt.title("Boxplot of Hours Watching Television per Day by Vape Use")
+plt.xlabel( "Vape Use" , size = 12 )
+plt.ylabel( "Time Watching Television (Hours)" , size = 12 )
 #%%
 sns.boxplot(x="Vape_Use",y="Electronic_Devices", data=data)
+plt.title("Boxplot of Hours on Electronic Devices per Day by Vape Use")
+plt.xlabel( "Vape Use" , size = 12 )
+plt.ylabel( "Time on Electronic Devices (Hours)" , size = 12 )
 #%%
 #recoding race from numeric to categorical
 data["race"]=data["race"].replace(["White","Black or African American","Hispanic/Latino","All Other Races"],[1,2,3,4])
 data.head()
 #%%
-data["Vape_Use"]=data["Vape_Use"].replace([1,2],[0,1])
+data["Vape_Use"]=data["Vape_Use"].replace(["No","Yes"],[0,1])
 data.head()
 #%%
 #recoding data for logit regression
@@ -110,4 +115,14 @@ print('Logit model accuracy (with the test set):', admitlogit.score(x_test, y_te
 print('Logit model accuracy (with the train set):', admitlogit.score(x_train, y_train))
 
 
+# %%
+from statsmodels.formula.api import ols
+modelGreGpa = ols(formula='weight ~ Television + Electronic_Devices + Physical_Activity + C(race) + C(sex)', data=data)
+print( type(modelGreGpa) )
+# %%
+modelGreGpaFit = modelGreGpa.fit()
+print( type(modelGreGpaFit) )
+print( modelGreGpaFit.summary() )
+# %%
+plt.scatter("Electronic_Devices","Physical_Activity", data=data)
 # %%
