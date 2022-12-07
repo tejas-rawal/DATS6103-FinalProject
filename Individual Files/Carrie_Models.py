@@ -115,7 +115,7 @@ model = model.fit()
 print(model.summary())
 
 from sklearn.model_selection import train_test_split
-x_train, x_test, y_train, y_test = train_test_split(xdata, ydata, test_size=0.3, random_state=0)
+x_train, x_test, y_train, y_test = train_test_split(xdata, ydata, test_size=0.3, random_state=1)
 from sklearn.linear_model import LogisticRegression
 
 logit = LogisticRegression()  # instantiate
@@ -132,7 +132,7 @@ model1 = model1.fit()
 print(model1.summary())
 
 from sklearn.model_selection import train_test_split
-x_train1, x_test1, y_train1, y_test1 = train_test_split(xdata1, ydata1, test_size=0.3, random_state=0)
+x_train1, x_test1, y_train1, y_test1 = train_test_split(xdata1, ydata1, test_size=0.3, random_state=1)
 from sklearn.linear_model import LogisticRegression
 
 logit1 = LogisticRegression()  # instantiate
@@ -149,7 +149,7 @@ model2 = model2.fit()
 print(model2.summary())
 
 from sklearn.model_selection import train_test_split
-x_train2, x_test2, y_train2, y_test2 = train_test_split(xdata2, ydata2, test_size=0.3, random_state=0)
+x_train2, x_test2, y_train2, y_test2 = train_test_split(xdata2, ydata2, test_size=0.3, random_state=1)
 from sklearn.linear_model import LogisticRegression
 
 logit2 = LogisticRegression()  # instantiate
