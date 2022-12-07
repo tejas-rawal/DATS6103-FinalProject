@@ -40,6 +40,7 @@ print(surveyDf.head())
 tv_answers = ['0', '< 1', '1', '2', '3', '4', '>= 5']
 phys_answers = ['0', '1', '2', '3' , '4', '5', '6', '7']
 race_groups = ['White', 'Black or African American', 'Hispanic/Latino', 'All Other Races']
+sex = ['Female', 'Male']
 
 #%%
 # common functions
@@ -155,7 +156,7 @@ sns.violinplot(y=surveyDf.bmi, x=surveyDf.race, alpha=0.6, palette='husl')
 plt.title('BMI by race')
 plt.xlabel('Race')
 plt.ylabel('BMI (kg/in²)')
-plt.xticks(list(range(len(race_groups))), race_groups)
+plt.xticks(list(range(len(race_groups))), race_groups, rotation=45)
 plt.show()
 
 # boxplot of BMI vs hours of TV
@@ -163,7 +164,7 @@ sns.boxplot(y=surveyDf.bmi, x=surveyDf.race, palette='husl')
 plt.title('BMI by race')
 plt.xlabel('Race')
 plt.ylabel('BMI (kg/in²)')
-plt.xticks(list(range(len(race_groups))), race_groups)
+plt.xticks(list(range(len(race_groups))), race_groups, rotation=45)
 plt.show()
 
 #%%[markdown]
@@ -191,6 +192,67 @@ print("Race ANOVA result:\n", race_anova_result)
 # Our results again yield a significant result. With a p-value close to 0, we must reject Hٖ₀ that the mean BMI of samples across race are equal. Our result indicates that the BMI is significantly different between children belonging to different race groups.
 
 #%%[markdown]
-# TODO: remove outliers and perform ANOVAs again
+# #### BMI by sex
+# This time, we will examine the distribution of BMI by the sex of the participant.
+# <br/><br/>
+# We can begin by plotting the BMI distribution across gender choices:
+#%%
+sns.violinplot(y=surveyDf.bmi, x=surveyDf.sex, alpha=0.6, palette='husl')
+plt.title('BMI by sex')
+plt.xlabel('Sex')
+plt.ylabel('BMI (kg/in²)')
+plt.xticks(list(range(len(sex))), sex)
+plt.show()
 
-# TODO: Perform some sort of supervised regression (linear, logistic, kNN, Random forest)?
+# boxplot of BMI vs hours of TV
+sns.boxplot(y=surveyDf.bmi, x=surveyDf.sex, palette='husl')
+plt.title('BMI by sex')
+plt.xlabel('Sex')
+plt.ylabel('BMI (kg/in²)')
+plt.xticks(list(range(len(sex))), sex)
+plt.show()
+
+#%%[markdown]
+# The hypothesis setup for this test looks as follows:
+# <br/><br/>
+# * Hٖ₀ = The mean BMIs for each sex are equal
+# * Hₐ = The mean BMIs is significantly different between each sex
+# * alpha = 0.5
+#%%
+# code for ANOVA here
+unique_by_sex = get_unique(surveyDf, 'sex')
+samples_by_sex = [
+    surveyDf[surveyDf.sex == sex]['bmi']
+        for sex in unique_by_sex
+]
+
+print("Total size: ", len(samples_by_sex))
+print("Size of each group: ", [len(sample) for sample in samples_by_sex])
+
+sex_anova_result = f_oneway(*samples_by_sex)
+print("Sex ANOVA result:\n", sex_anova_result)
+
+#%%[markdown]
+# With a p-value of 0.00013, we can reject our Hٖ₀ that the mean BMI of participants of each sex are equal. Our result indicates that the BMI is significantly different between female and male participants.
+
+#%%[markdown]
+# TODO: more plots to describe data
+# TODO: some sort of BMI outlier analysis?
+# TODO: Perform supervised regression or classification (linear, logistic, kNN, Random forest)?
+    # race kNN classification?
+    # obesity logistic classification?
+
+#%%
+# code to add random number to column
+# TODO: transform television column data using method below
+np.random.uniform(size=surveyDf.shape[0])
+
+#%%[markdown]
+# ### Classifying obesity rate in population
+# The CDC describes a child as obese if their BMI-for-age falls at or above the 95th percentile for their sex and age. Using this formula, we can add a binary column to our dataset which clasifies whether that person is obese or not.
+# <br/><br/>
+# Once our data is prepared, we can perform a logistic regression using covariates from the dataset to predict obesity outcome.
+
+# TODO:
+# 1. Generate and fill new binary column called obese. This is based on CDC's guidelines (might need a function to classify).
+# 2. chi-squared between race and obesity
