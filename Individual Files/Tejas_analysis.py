@@ -239,9 +239,20 @@ print("Sex ANOVA result:\n", sex_anova_result)
 # TODO: more plots to describe data
 # TODO: some sort of BMI outlier analysis?
 # TODO: Perform supervised regression or classification (linear, logistic, kNN, Random forest)?
-    # Age prediction?
-    # race classification?
+    # race kNN classification?
+    # obesity logistic classification?
 
 #%%
 # code to add random number to column
+# TODO: transform television column data using method below
 np.random.uniform(size=surveyDf.shape[0])
+
+#%%[markdown]
+# ### Classifying obesity rate in population
+# The CDC describes a child as obese if their BMI-for-age falls at or above the 95th percentile for their sex and age. Using this formula, we can add a binary column to our dataset which clasifies whether that person is obese or not.
+# <br/><br/>
+# Once our data is prepared, we can perform a logistic regression using covariates from the dataset to predict obesity outcome.
+
+# TODO:
+# 1. Generate and fill new binary column called obese. This is based on CDC's guidelines (might need a function to classify).
+# 2. chi-squared between race and obesity
