@@ -17,10 +17,11 @@ from statsmodels.formula.api import mnlogit
 from statsmodels.formula.api import glm
 from statsmodels.formula.api import ols
 import scipy.stats as stats
+from sklearn.tree import DecisionTreeClassifier # Import Decision Tree Classifier
 
 
 #%%
-data = pd.read_csv("/Users/carriemagee/Downloads/DATS6103-FinalProject/cleaned_data5.csv")
+data = pd.read_csv("/Users/carriemagee/Downloads/DATS6103-FinalProject/Datasets/cleaned_data5.csv")
 # In[176]:
 data
 #%%
@@ -96,21 +97,29 @@ stats.ttest_ind(a=vape_yes["Electronic_Devices"], b=vape_no["Electronic_Devices"
 #recoding race from numeric to categorical
 data["race"]=data["race"].replace(["White","Black or African American","Hispanic/Latino","All Other Races"],[1,2,3,4])
 data.head()
+data["race"]=data["race"].astype("category")
 #%%
 data["Vape_Use"]=data["Vape_Use"].replace(["No","Yes"],[0,1])
 data.head()
+data["Vape_Use"] = data["Vape_Use"].astype('category')
 #%%
 data["marijuana_use"]=data["marijuana_use"].replace([1,2],[1,0])
 data.head()
 #%%
 data["cyber_bullied"]=data["cyber_bullied"].replace([1,2],[1,0])
 data.head()
+data["cyber_bullied"] = data["cyber_bullied"].astype('category')
+
+print(data.dtypes)
 #%%
 #recoding data for logit regression
 xdata = data[["Television","Electronic_Devices","race"]]
 ydata = data[["Vape_Use"]]
+
+features = ['Television','Electronic_Devices','race']
+print(xdata)
 #%%
-model = glm(formula="Vape_Use ~ Television + Electronic_Devices+C(race, Treatment(reference = 1))",data=data, family=sm.families.Binomial())
+model = glm(formula="Vape_Use ~ Television +C(race, Treatment(reference = 1))",data=data, family=sm.families.Binomial())
 model = model.fit()
 print(model.summary())
 
@@ -118,28 +127,158 @@ from sklearn.model_selection import train_test_split
 x_train, x_test, y_train, y_test = train_test_split(xdata, ydata, test_size=0.3, random_state=1)
 from sklearn.linear_model import LogisticRegression
 
-logit = LogisticRegression()  # instantiate
+clf = DecisionTreeClassifier(class_weight='balanced',max_depth=3)
+# Train Decision Tree Classifier
+clf = clf.fit(x_train,y_train)
+#Predict the response for test dataset
+y_pred = clf.predict(x_test)
+
+
+logit = LogisticRegression(solver='newton-cg', class_weight='balanced')  # instantiate
 logit.fit(x_train, y_train)
 print('Logit model accuracy (with the test set):', logit.score(x_test, y_test))
 print('Logit model accuracy (with the train set):',logit.score(x_train, y_train))
+
+y_pred = logit.predict(x_test)
+print(y_pred)
+
+#%%
+# Classification Report
+#
+from sklearn.metrics import classification_report
+y_true, y_pred = y_test, logit.predict(x_test)
+print(classification_report(y_true, y_pred))
+
+from sklearn.metrics import confusion_matrix
+confusion_matrix(y_test,y_pred)
+#%%
+from sklearn.metrics import roc_auc_score, roc_curve
+
+# generate a no skill prediction (majority class)
+ns_probs = [0 for _ in range(len(y_test))]
+# predict probabilities
+lr_probs = logit.predict_proba(x_test)
+# keep probabilities for the positive outcome only
+lr_probs = lr_probs[:, 1]
+# calculate scores
+ns_auc = roc_auc_score(y_test, ns_probs)
+lr_auc = roc_auc_score(y_test, lr_probs)
+# summarize scores
+print('No Skill: ROC AUC=%.3f' % (ns_auc))
+print('Logistic: ROC AUC=%.3f' % (lr_auc))
+# calculate roc curves
+ns_fpr, ns_tpr, _ = roc_curve(y_test, ns_probs)
+lr_fpr, lr_tpr, _ = roc_curve(y_test, lr_probs)
+# plot the roc curve for the model
+plt.plot(ns_fpr, ns_tpr, linestyle='--', label='No Skill')
+plt.plot(lr_fpr, lr_tpr, marker='.', label='Logistic')
+# axis labels
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+# show the legend
+plt.legend()
+# show the plot
+plt.show()
+
+#%%
+clf = DecisionTreeClassifier(class_weight='balanced',max_depth=3)
+# Train Decision Tree Classifier
+clf = clf.fit(x_train,y_train)
+#Predict the response for test dataset
+y_pred = clf.predict(x_test)
+
+print("Accuracy:",metrics.accuracy_score(y_test, y_pred))
+cm = confusion_matrix(y_test, y_pred)
+print(cm)
+
+#%%
+from sklearn import tree
+import matplotlib.pyplot as plt
+fig, axes = plt.subplots(nrows = 1,ncols = 1,figsize = (9,9), dpi=800)
+tree.plot_tree(clf,
+              feature_names = features);
 #%%
 #recoding data for logit regression
-xdata1 = data[["Television","Electronic_Devices","race"]]
+xdata1 = data[["Television","race"]]
 ydata1 = data[["marijuana_use"]]
 
-model1 = glm(formula="marijuana_use ~ Television + Electronic_Devices+C(race, Treatment(reference = 1))",data=data, family=sm.families.Binomial())
+
+
+model1 = glm(formula="marijuana_use ~ Television +C(race, Treatment(reference = 1))",data=data, family=sm.families.Binomial())
 model1 = model1.fit()
 print(model1.summary())
 
+
 from sklearn.model_selection import train_test_split
-x_train1, x_test1, y_train1, y_test1 = train_test_split(xdata1, ydata1, test_size=0.3, random_state=1)
+x_train1, x_test1, y_train1, y_test1 = train_test_split(xdata1, ydata1, test_size=0.3, random_state=0)
 from sklearn.linear_model import LogisticRegression
 
-logit1 = LogisticRegression()  # instantiate
+logit1 = LogisticRegression(solver='newton-cg', class_weight='balanced')  # instantiate
 logit1.fit(x_train1, y_train1)
 print('Logit model accuracy (with the test set):', logit1.score(x_test1, y_test1))
 print('Logit model accuracy (with the train set):', logit1.score(x_train1, y_train1))
 
+y_pred1 = logit1.predict(x_test1)
+print(y_pred1)
+
+
+
+#%%
+# Classification Report
+#
+from sklearn.metrics import classification_report
+y_true, y_pred1 = y_test1, logit1.predict(x_test1)
+print(classification_report(y_true, y_pred1))
+
+from sklearn.metrics import confusion_matrix
+confusion_matrix(y_test1,y_pred1)
+#%%
+y_pred_probs=logit1.predict_proba(x_test1) 
+  # probs_y is a 2-D array of probability of being labeled as 0 (first 
+  # column of array) vs 1 (2nd column in array)
+
+from sklearn import metrics
+from sklearn.metrics import precision_recall_curve
+precision, recall, thresholds = precision_recall_curve(y_test1, y_pred_probs[:, 1]) 
+   #retrieve probability of being 1(in second column of probs_y)
+pr_auc = metrics.auc(recall, precision)
+
+plt.title("Precision-Recall vs Threshold Chart")
+plt.plot(thresholds, precision[: -1], "b--", label="Precision")
+plt.plot(thresholds, recall[: -1], "r--", label="Recall")
+plt.ylabel("Precision, Recall")
+plt.xlabel("Threshold")
+plt.legend(loc="lower left")
+plt.ylim([0,1])
+
+#%%
+from sklearn.metrics import roc_auc_score, roc_curve
+
+# generate a no skill prediction (majority class)
+ns_probs = [0 for _ in range(len(y_test1))]
+# predict probabilities
+lr_probs = logit1.predict_proba(x_test1)
+# keep probabilities for the positive outcome only
+lr_probs = lr_probs[:, 1]
+# calculate scores
+ns_auc = roc_auc_score(y_test1, ns_probs)
+lr_auc = roc_auc_score(y_test1, lr_probs)
+# summarize scores
+print('No Skill: ROC AUC=%.3f' % (ns_auc))
+print('Logistic: ROC AUC=%.3f' % (lr_auc))
+# calculate roc curves
+ns_fpr, ns_tpr, _ = roc_curve(y_test1, ns_probs)
+lr_fpr, lr_tpr, _ = roc_curve(y_test1, lr_probs)
+# plot the roc curve for the model
+plt.plot(ns_fpr, ns_tpr, linestyle='--', label='No Skill')
+plt.plot(lr_fpr, lr_tpr, marker='.', label='Logistic')
+# axis labels
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+# show the legend
+plt.legend()
+# show the plot
+plt.show()
 #%%
 xdata2 = data[["Television","Electronic_Devices","race"]]
 ydata2 = data[["cyber_bullied"]]
@@ -152,10 +291,73 @@ from sklearn.model_selection import train_test_split
 x_train2, x_test2, y_train2, y_test2 = train_test_split(xdata2, ydata2, test_size=0.3, random_state=1)
 from sklearn.linear_model import LogisticRegression
 
-logit2 = LogisticRegression()  # instantiate
+logit2 = LogisticRegression(solver='newton-cg', class_weight='balanced')  # instantiate
 logit2.fit(x_train2, y_train2)
 print('Logit model accuracy (with the test set):', logit2.score(x_test2, y_test2))
 print('Logit model accuracy (with the train set):', logit2.score(x_train2, y_train2))
+
+y_pred2 = logit2.predict(x_test2)
+print(y_pred2)
+
+
+
+#%%
+# Classification Report
+#
+from sklearn.metrics import classification_report
+y_true, y_pred2 = y_test2, logit2.predict(x_test2)
+print(classification_report(y_true, y_pred2))
+
+from sklearn.metrics import confusion_matrix
+confusion_matrix(y_test2,y_pred2)
+#%%
+y_pred_probs=logit2.predict_proba(x_test2) 
+  # probs_y is a 2-D array of probability of being labeled as 0 (first 
+  # column of array) vs 1 (2nd column in array)
+
+from sklearn import metrics
+from sklearn.metrics import precision_recall_curve
+precision, recall, thresholds = precision_recall_curve(y_test2, y_pred_probs[:, 1]) 
+   #retrieve probability of being 1(in second column of probs_y)
+pr_auc = metrics.auc(recall, precision)
+
+plt.title("Precision-Recall vs Threshold Chart")
+plt.plot(thresholds, precision[: -1], "b--", label="Precision")
+plt.plot(thresholds, recall[: -1], "r--", label="Recall")
+plt.ylabel("Precision, Recall")
+plt.xlabel("Threshold")
+plt.legend(loc="lower left")
+plt.ylim([0,1])
+
+#%%
+from sklearn.metrics import roc_auc_score, roc_curve
+
+# generate a no skill prediction (majority class)
+ns_probs = [0 for _ in range(len(y_test2))]
+# predict probabilities
+lr_probs = logit2.predict_proba(x_test2)
+# keep probabilities for the positive outcome only
+lr_probs = lr_probs[:, 1]
+# calculate scores
+ns_auc = roc_auc_score(y_test1, ns_probs)
+lr_auc = roc_auc_score(y_test1, lr_probs)
+# summarize scores
+print('No Skill: ROC AUC=%.3f' % (ns_auc))
+print('Logistic: ROC AUC=%.3f' % (lr_auc))
+# calculate roc curves
+ns_fpr, ns_tpr, _ = roc_curve(y_test1, ns_probs)
+lr_fpr, lr_tpr, _ = roc_curve(y_test1, lr_probs)
+# plot the roc curve for the model
+plt.plot(ns_fpr, ns_tpr, linestyle='--', label='No Skill')
+plt.plot(lr_fpr, lr_tpr, marker='.', label='Logistic')
+# axis labels
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+# show the legend
+plt.legend()
+# show the plot
+plt.show()
+
 #%%
 #recoding race from numeric to categorical
 data["race"]=data["race"].replace([1,2,3,4],["White","Black or African American","Hispanic/Latino","All Other Races"])
