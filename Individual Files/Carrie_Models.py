@@ -24,7 +24,6 @@ from sklearn.tree import DecisionTreeClassifier # Import Decision Tree Classifie
 data = pd.read_csv("/Users/carriemagee/Downloads/DATS6103-FinalProject/Datasets/cleaned_data5.csv")
 #%%
 data["Vape_Use"]=data["Vape_Use"].replace([1,2],["Yes","No"])
-data.head()
 vape_yes = data[data["Vape_Use"]=="Yes"]
 vape_no = data[data["Vape_Use"]=="No"]
 #%%
@@ -35,14 +34,12 @@ for container in ax.containers:
 plt.xlabel( "Vape Use" , size = 12 )
 plt.ylabel( "Frequency" , size = 12 )
 plt.title("Distribution of Vape Use")
-data["Vape_Use"].value_counts()
 ## This figure shows the proportion of individuals in the sample who do and do not use electronic vapor products.
 ## More specifically, there are 17,102 individuals who do not engage in vaping and 14,482 who do engage in vaping which makes about a 2,620 person difference. 
 
 #%%
 #recoding race from numeric to categorical
 data["race"]=data["race"].replace([1,2,3,4],["White","Black or African American","Hispanic/Latino","All Other Races"])
-data.head()
 #%%
 #race visulization
 plt.figure(figsize=(8,4))
@@ -52,7 +49,6 @@ for container in ax.containers:
 plt.xlabel( "Race" , size = 12 )
 plt.ylabel( "Frequency" , size = 12 ) 
 plt.title("Racial Makeup of Sample")
-data["race"].value_counts()
 ## The figure above shows the racial makeup of our sample. About 49% of the sample is White , 28% are Hispanic or Latino,  12% are Black or African American, and 11% identify as another race.
 #%%
 #race and vape visulization
@@ -71,7 +67,8 @@ for container in ax.containers:
 plt.title("Bar Chart of Hours Watching Television per Day by Vape Use")
 plt.ylabel( "Frequency" , size = 12 )
 plt.xlabel( "Time Watching Television (Hours)" , size = 12 )
-stats.ttest_ind(a=vape_yes["Television"], b=vape_no["Television"], equal_var=True)
+ts = stats.ttest_ind(a=vape_yes["Television"], b=vape_no["Television"], equal_var=True)
+print("Two-Sample T-test:",ts)
 ## The plot shows the differences in hours of television watched per day by individuals who do and do not vape. Interestingly, between the housrs of 0.0 and 2.0 there are many more individuals who report not vaping. 
 ## In comparison, between the hours of 3.0 and 5.0 it is apparent that a greater proportion of individuals report vaping. It is important to the pattern that
 ## the more hours of television watched in the day, the more the individuals report vaping in comparison to not vaping. These results may imply a relationship between number of hours of television per day and vaping habits considering that the gap between those who vape and those who do not vape becomes
@@ -85,7 +82,8 @@ for container in ax.containers:
 plt.title("Bar Chart of Hours on Electronic Devices per Day by Vape Use")
 plt.ylabel( "Frequency" , size = 12 )
 plt.xlabel( "Time on Electronic Devices (Hours)" , size = 12 )
-stats.ttest_ind(a=vape_yes["Electronic_Devices"], b=vape_no["Electronic_Devices"], equal_var=True)
+s = stats.ttest_ind(a=vape_yes["Electronic_Devices"], b=vape_no["Electronic_Devices"], equal_var=True)
+print("Two-Sample T-test:",s)
 
 ## The plot shows mixed results with the two ends of the hour distribution having the smallest differences between those who do and do not report vaping.
 ## The largest difference between groups clusters at 2.0 hours. Overall, there is no definite trend in this graph depicting differences in time spent
@@ -94,16 +92,14 @@ stats.ttest_ind(a=vape_yes["Electronic_Devices"], b=vape_no["Electronic_Devices"
 #%%
 #recoding race from numeric to categorical
 data["race"]=data["race"].replace(["White","Black or African American","Hispanic/Latino","All Other Races"],[1,2,3,4])
-data.head()
 data["race"]=data["race"].astype("category")
 #%%
 data["Vape_Use"]=data["Vape_Use"].replace(["No","Yes"],[0,1])
-data.head()
 data["Vape_Use"] = data["Vape_Use"].astype('category')
 #%%
 data["marijuana_use"]=data["marijuana_use"].replace([1,2],[1,0])
 data["marijuana_use"] = data["marijuana_use"].astype('category')
-data.head()
+
 #%%
 #recoding data for logit regression
 xdata = data[["Television","Electronic_Devices",'marijuana_use',"race"]]
@@ -134,10 +130,13 @@ print(y_pred)
 
 from sklearn.metrics import classification_report
 y_true, y_pred = y_test, logit.predict(x_test)
+print("Classification Report:",end='\n')
 print(classification_report(y_true, y_pred))
 
 from sklearn.metrics import confusion_matrix
-confusion_matrix(y_test,y_pred)
+c = confusion_matrix(y_test,y_pred)
+print("Confusion Matrix:",end='\n')
+print(c)
 #%%
 from sklearn.metrics import roc_auc_score, roc_curve
 
@@ -162,6 +161,7 @@ plt.plot(lr_fpr, lr_tpr, marker='.', label='Logistic')
 # axis labels
 plt.xlabel('False Positive Rate')
 plt.ylabel('True Positive Rate')
+plt.title("Receiver Operating Characteristic - Logisitc Regression")
 # show the legend
 plt.legend()
 # show the plot
@@ -178,6 +178,33 @@ print("Accuracy of Decision Tree Classifier is:",metrics.accuracy_score(y_test, 
 cm = confusion_matrix(y_test, y_pred)
 print("Confusion Matrix:",end="\n")
 print(cm)
+
+# generate a no skill prediction (majority class)
+ns_probs = [0 for _ in range(len(y_test))]
+# predict probabilities
+lr_probs = clf.predict_proba(x_test)
+# keep probabilities for the positive outcome only
+lr_probs = lr_probs[:, 1]
+# calculate scores
+ns_auc = roc_auc_score(y_test, ns_probs)
+lr_auc = roc_auc_score(y_test, lr_probs)
+# summarize scores
+print('No Skill: ROC AUC=%.3f' % (ns_auc))
+print('DecisionTree: ROC AUC=%.3f' % (lr_auc))
+# calculate roc curves
+ns_fpr, ns_tpr, _ = roc_curve(y_test, ns_probs)
+lr_fpr, lr_tpr, _ = roc_curve(y_test, lr_probs)
+# plot the roc curve for the model
+plt.plot(ns_fpr, ns_tpr, linestyle='--', label='No Skill')
+plt.plot(lr_fpr, lr_tpr, marker='.', label='DecisionTree')
+# axis labels
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title("Receiver Operating Characteristic - DecisionTree ")
+# show the legend
+plt.legend()
+# show the plot
+plt.show()
 
 #%%
 from sklearn import tree
@@ -227,7 +254,6 @@ sns.heatmap(contigency1, annot=True, cmap="Blues", vmin= 40, vmax=36000,fmt='g')
 plt.title("Contingency Table of Marijuana Use and Vape Use")
 plt.xlabel('Vape Use')
 plt.ylabel('Marijuana Use')
-
 
 
 stat, p, dof, expected = chi2_contingency(contigency1)
