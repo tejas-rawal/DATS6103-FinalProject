@@ -57,9 +57,67 @@ def get_unique(df: pd.DataFrame, column: str):
     except Exception as err:
         raise(err)
 #%%[markdown]
+# To begin, we can analyze the value counts for each answer to the questions we will be utilizing in our models
+
+#%%
+# Television use
+sns.countplot(y=surveyDf.Television, color='#1B065E')
+plt.yticks(list(range(len(tv_answers))), tv_answers)
+plt.xlabel('Count')
+plt.ylabel('Hours of TV watched')
+plt.title('Counts for hours of television watched responses')
+plt.show()
+
+# Physical Activity
+sns.countplot(y=surveyDf.Physical_Activity, color='#34E5FF')
+plt.yticks(list(range(len(phys_answers))), phys_answers)
+plt.xlabel('Count')
+plt.ylabel('Days physically active')
+plt.title('Counts for days physically active responses')
+plt.show()
+
+# Race
+sns.countplot(y=surveyDf.race, color='#6B0F1A')
+plt.yticks(list(range(len(race_groups))), race_groups,  rotation=45)
+plt.xlabel('Count')
+plt.ylabel('Race')
+plt.title('Counts of race responses in survey population')
+plt.show()
+
+# Sex
+sns.countplot(y=surveyDf.sex, color='#F49E4C')
+plt.yticks(list(range(len(sex))), sex)
+plt.xlabel('Count')
+plt.ylabel('Sex')
+plt.title('Counts of each sex in survey population')
+plt.show()
+
+#%%[markdown]
+# For the televisons hours watched survey questions, most participants responded that they watched no TV on an average school day.
+# <br/><br/>
+# For the question addressing days of physcical activity within a typical school week, a majority of participants responded that they were active for at least 60 minutes on all 7 days of the week.
+# <br/><br/>
+# In our survey population, the majority of respondents identified as White.
+# <br/><br/>
+# There is a near 50-50 split of each sex (male, female) in the survey population.
+
+#%%[markdown]
 # #### BMI across hours spent watching TV 
 # <br/><br/>
 # Let us start by examining the distribution of BMI across answers for the television question:
+
+#%%
+# TODO: BMI distribution plot
+sns.distplot(surveyDf.bmi, color="#60D394", bins=40,
+    hist_kws=dict(edgecolor="#000000", linewidth=1),
+    kde_kws=dict(linewidth=2, color="#313715"))
+plt.xlabel('BMI (kg/in²)')
+plt.ylabel('Density')
+plt.title('Density Plot of Survey Population BMI')
+plt.show()
+
+#%%[markdown]
+# The distribution of BMI within our population seems failry normal, with a slight right-skewness. This can be expalined by respondendts with unusually high BMIs shifting the distribution.
 
 #%%
 # violin plot of BMI distribution across hours of TV watched answers
