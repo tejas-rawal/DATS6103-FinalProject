@@ -195,7 +195,6 @@ samples_by_phys = [
         for answer in unique_by_tv
 ]
 
-
 print("Total size: ", len(samples_by_phys))
 print("Size of each group: ", [len(sample) for sample in samples_by_phys])
 
@@ -238,7 +237,6 @@ samples_by_race = [
     surveyDf[surveyDf.race == answer]['bmi']
         for answer in unique_by_race
 ]
-
 
 print("Total size: ", len(samples_by_race))
 print("Size of each group: ", [len(sample) for sample in samples_by_race])
@@ -314,3 +312,52 @@ np.random.uniform(size=surveyDf.shape[0])
 # TODO:
 # 1. Generate and fill new binary column called obese. This is based on CDC's guidelines (might need a function to classify).
 # 2. chi-squared between race and obesity
+
+# ### Race classification
+# Race can potentially determine the physical and educational conditions for adolescents in the United States.
+# ANOVA results targeting BMI across the 4 race groups were significant. Can we find other features in the dataset that could help us classify the race of respondendts?
+
+# <br/><br/>
+
+# Plot and desribe counts of television hours and physically activity respones by race
+
+#%%
+# reclassify race column
+surveyDf.race = surveyDf.race.replace(to_replace=[1, 2, 3, 4], value=race_groups)
+
+# race proportions grouped by each survey response
+tv_by_race = surveyDf.groupby('Television')['race']\
+    .value_counts(normalize=True).mul(100)\
+    .rename('percent')\
+    .reset_index()
+
+phys_by_race = surveyDf.groupby('Physical_Activity')['race']\
+    .value_counts(normalize=True).mul(100)\
+    .rename('percent')\
+    .reset_index()
+
+
+sns.barplot(data=tv_by_race, x='Television', y='percent',
+    hue='race', hue_order=tv_by_race.race.unique(),
+    dodge=False, palette='husl')
+plt.xticks(list(range(len(tv_answers))), tv_answers)
+plt.xlabel('Hours of TV watched')
+plt.ylabel('Percentage')
+plt.title('Hours of TV watched by race')
+plt.legend(title='Race', bbox_to_anchor=(1, 1))
+plt.show()
+
+sns.barplot(data=phys_by_race, x='Physical_Activity', y='percent',
+    hue='race', hue_order=phys_by_race.race.unique(),
+    dodge=False, palette='husl')
+plt.xticks(list(range(len(phys_answers))), phys_answers)
+plt.xlabel('Days physically active')
+plt.ylabel('Percentage')
+plt.title('Days physically active by by race')
+plt.legend(title='Race', bbox_to_anchor=(1, 1))
+plt.show()
+
+### kNN
+
+### Decision tree
+# %%
