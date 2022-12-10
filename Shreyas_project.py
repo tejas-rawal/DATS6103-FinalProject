@@ -6,6 +6,20 @@ import seaborn as sns
 from IPython import get_ipython
 import warnings
 warnings.filterwarnings("ignore")
+import pandas as pd
+import requests
+import io
+import numpy as np
+import seaborn as sns
+import statsmodels.api as sm
+from numpy import mean
+from numpy import std
+from sklearn.datasets import make_classification
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import RepeatedStratifiedKFold
+from sklearn.linear_model import LogisticRegression
+from matplotlib import pyplot
+from sklearn.metrics import make_scorer, accuracy_score, roc_auc_score
 # %%
 data = pd.read_csv('/Users/carriemagee/Downloads/sadc_data.csv')
 
@@ -149,3 +163,51 @@ msno.bar(data_2009)
 # %%
 data_2009.to_csv('cleaned_data5.csv') 
 # %%
+data_2009['bmi']=data_2009['bmi'].round(decimals = 2)
+
+#%%
+data_2009.loc[(data_2009['bmi']) < 18.5, 'BMI_class'] = 'underweight'
+data_2009.loc[(data_2009['bmi'] <= 24.99 ) & (data_2009['bmi'] >= 18.5), 'BMI_class'] = 'healthy'
+data_2009.loc[(data_2009['bmi'] <= 29.99 ) & (data_2009['bmi'] >= 25), 'BMI_class'] = 'overweight'
+data_2009.loc[(data_2009['bmi']) >= 30, 'BMI_class'] = 'obese'
+
+
+data_2009.loc[data_2009['Physical_Activity'] == 0, 'PA_Class'] = 'No Activity'
+data_2009.loc[(data_2009['Physical_Activity'] <= 2 ) & (data_2009['Physical_Activity'] >= 1), 'PA_Class'] = 'Minimal'
+data_2009.loc[(data_2009['Physical_Activity'] <= 5 ) & (data_2009['Physical_Activity'] >= 3), 'PA_Class'] = 'Moderate'
+data_2009.loc[(data_2009['Physical_Activity'] <= 7 ) & (data_2009['Physical_Activity'] >= 6), 'PA_Class'] = 'High'
+
+#%%
+y = data_2009['BMI_class']
+X = data_2009[['Television','Electronic_Devices','sex','race','marijuana_use']]
+
+#%%
+from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 0)
+
+#%%
+LR_Model = LogisticRegression(multi_class='multinomial', solver='lbfgs', penalty='l2', 
+                           C=1.0, max_iter = 1000000)
+LR_Model.fit(X_train, y_train)
+LR_Predict = LR_Model.predict(X_test)
+LR_Accuracy = accuracy_score(y_test, LR_Predict)
+print("Accuracy: " + str(LR_Accuracy))
+
+
+y = data_2009['PA_class']
+X = data_2009[['Television','Electronic_Devices','sex','race','marijuana_use']]
+
+#%%
+from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 0)
+
+#%%
+LR_Model = LogisticRegression(multi_class='multinomial', solver='lbfgs', penalty='l2', 
+                           C=1.0, max_iter = 1000000)
+LR_Model.fit(X_train, y_train)
+LR_Predict = LR_Model.predict(X_test)
+LR_Accuracy = accuracy_score(y_test, LR_Predict)
+print("Accuracy: " + str(LR_Accuracy))
+
