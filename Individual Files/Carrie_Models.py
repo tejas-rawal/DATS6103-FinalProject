@@ -105,12 +105,6 @@ data["marijuana_use"]=data["marijuana_use"].replace([1,2],[1,0])
 data["marijuana_use"] = data["marijuana_use"].astype('category')
 data.head()
 #%%
-data["TV"]=data["TV"].replace(["None of the Day","Some of the Day","Most of the Day"],[0,1,2])
-data.head()
-#%%
-data["ED"]=data["ED"].replace(["None of the Day","Some of the Day","Most of the Day"],[0,1,2])
-data.head()
-#%%
 #recoding data for logit regression
 xdata = data[["Television","Electronic_Devices",'marijuana_use',"race"]]
 ydata = data[["Vape_Use"]]
@@ -180,8 +174,9 @@ clf = clf.fit(x_train,y_train)
 #Predict the response for test dataset
 y_pred = clf.predict(x_test)
 
-print("Accuracy:",metrics.accuracy_score(y_test, y_pred))
+print("Accuracy of Decision Tree Classifier is:",metrics.accuracy_score(y_test, y_pred))
 cm = confusion_matrix(y_test, y_pred)
+print("Confusion Matrix:",end="\n")
 print(cm)
 
 #%%
@@ -222,6 +217,8 @@ print("The results of the chi-squared test of independence showed that the p val
     #print('Independent (H0 holds true)')
 
 # %%
+data["marijuana_use"]=data["marijuana_use"].replace([1,0],["Yes","No"])
+data["Vape_Use"]=data["Vape_Use"].replace([0,1],["No","Yes"])
 #creating a contingency table for race and grades
 contigency1 = pd.crosstab(index=data['marijuana_use'], columns=data['Vape_Use'], margins=True, margins_name="Total")
 #%%
@@ -243,3 +240,5 @@ print("The results of the chi-squared test of independence showed that the p val
     #print('Independent (H0 holds true)')
 
 
+
+# %%
