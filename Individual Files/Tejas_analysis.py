@@ -20,7 +20,7 @@ from statsmodels.formula.api import glm
 
 #%%
 # load the data
-surveyDf = pd.read_csv('../Datasets/cleaned_data2.csv')
+surveyDf = pd.read_csv('../Datasets/cleaned_data5.csv')
 # analyze structure
 print(f"Shape (rows, columns): {surveyDf.shape}")
 print("\n\n")
@@ -41,6 +41,7 @@ tv_answers = ['0', '< 1', '1', '2', '3', '4', '>= 5']
 phys_answers = ['0', '1', '2', '3' , '4', '5', '6', '7']
 race_groups = ['White', 'Black or African American', 'Hispanic/Latino', 'All Other Races']
 sex = ['Female', 'Male']
+grades = ["Mostly A's","Mostly B's","Mostly C's","Mostly D's","Mostly F's","None of these grades","Not sure"]
 
 #%%
 # common functions
@@ -292,29 +293,9 @@ print("Sex ANOVA result:\n", sex_anova_result)
 # With a p-value of 0.00013, we can reject our Hٖ₀ that the mean BMI of participants of each sex are equal. Our result indicates that the BMI is significantly different between female and male participants.
 
 #%%[markdown]
-# TODO: more plots to describe data
-# TODO: some sort of BMI outlier analysis?
-# TODO: Perform supervised regression or classification (linear, logistic, kNN, Random forest)?
-    # race kNN classification?
-    # obesity logistic classification?
-
-#%%
-# code to add random number to column
-# TODO: transform television column data using method below
-np.random.uniform(size=surveyDf.shape[0])
-
-#%%[markdown]
-# ### Classifying obesity rate in population
-# The CDC describes a child as obese if their BMI-for-age falls at or above the 95th percentile for their sex and age. Using this formula, we can add a binary column to our dataset which clasifies whether that person is obese or not.
-# <br/><br/>
-# Once our data is prepared, we can perform a logistic regression using covariates from the dataset to predict obesity outcome.
-
-# TODO:
-# 1. Generate and fill new binary column called obese. This is based on CDC's guidelines (might need a function to classify).
-# 2. chi-squared between race and obesity
-
 # ### Race classification
-# Race can potentially determine the physical and educational conditions for adolescents in the United States.
+# Physical and educational outcomes can be determined by race.
+# <br/><br/>
 # ANOVA results targeting BMI across the 4 race groups were significant. Can we find other features in the dataset that could help us classify the race of respondendts?
 
 # <br/><br/>
@@ -326,31 +307,38 @@ np.random.uniform(size=surveyDf.shape[0])
 surveyDf.race = surveyDf.race.replace(to_replace=[1, 2, 3, 4], value=race_groups)
 
 # race proportions grouped by each survey response
-# TODO: conver to pivot table and stacked bar plots
 tv_by_race = surveyDf.groupby('Television')['race']\
     .value_counts(normalize=True).mul(100)\
     .rename('percent')\
     .reset_index()
 
-phys_by_race = surveyDf.groupby('race')['Physical_Activity']\
-    .value_counts(normalize=True).mul(100)\
-    .rename('percent')\
-    .reset_index()
+# tv_by_race pivot table
+tv_by_race = tv_by_race.pivot(index='Television', columns='race', values='percent')
 
-
-sns.barplot(data=tv_by_race, x='Television', y='percent',
-    hue='race', hue_order=tv_by_race.race.unique(),
-    palette='husl')
-plt.xticks(list(range(len(tv_answers))), tv_answers)
+# stacked bar chart
+tv_by_race.plot(kind='bar', stacked=True)
+plt.xticks(list(range(len(tv_answers))), tv_answers, rotation=0)
 plt.xlabel('Hours of TV watched')
 plt.ylabel('Percentage')
 plt.title('Hours of TV watched by race')
 plt.legend(title='Race', bbox_to_anchor=(1, 1))
 plt.show()
 
-sns.barplot(data=phys_by_race, x='Physical_Activity',  
-    y='percent', hue='race',
-    hue_order=phys_by_race.race.unique(), palette='husl')
+#%%[markdown]
+# Talk about analysis of chart
+
+#%%
+# physical activity race proportions
+phys_by_race = surveyDf.groupby('Physical_Activity')['race']\
+    .value_counts(normalize=True).mul(100)\
+    .rename('percent')\
+    .reset_index()
+
+# phys_by_race pivot table
+phys_by_race = phys_by_race.pivot(index='Physical_Activity', columns='race', values='percent')
+
+# stacked bar chart of physical activity by race
+phys_by_race.plot(kind='bar', stacked=True)
 plt.xticks(list(range(len(phys_answers))), phys_answers)
 plt.xlabel('Days physically active')
 plt.ylabel('Percentage')
@@ -358,25 +346,100 @@ plt.title('Days physically active by by race')
 plt.legend(title='Race', bbox_to_anchor=(1, 1))
 plt.show()
 
-#%%
-surveyDf[['Television', 'race']].plot(stacked=True, x='Television', kind='bar')
+#%%[markdown]
+# Discuss results
 
-# TODO: Similar plots for electronic usage, grades
+#%%
+# electronic device usage by race
+el_by_race = surveyDf.groupby('Electronic_Devices')['race']\
+    .value_counts(normalize=True).mul(100)\
+    .rename('percent')\
+    .reset_index()
+
+# el_by_race pivot table
+el_by_race = el_by_race.pivot(index='Electronic_Devices', columns='race', values='percent')
+
+# stacked bar chart of electronic usage by race
+el_by_race.plot(kind='bar', stacked=True)
+plt.xticks(rotation=0)
+plt.xlabel('Hours of electronic use')
+plt.ylabel('Percentage')
+plt.title('Hour of electronic use by by race')
+plt.legend(title='Race', bbox_to_anchor=(1, 1))
+plt.show()
 
 #%%[markdown]
-# After analyzing the plots, we can see distinction between the proportion
-
+# Discuss results
 
 #%%
-# import kNN class
-from sklearn.neighbors import KNeighborsClassifier
-# import decision tree class
-from sklearn.tree import DecisionTreeClassifier
-# Import train_test_split
-from sklearn.model_selection import train_test_split
-# Import accuracy_score
-from sklearn.metrics import accuracy_score
-from sklearn.metrics import confusion_matrix 
-from sklearn.metrics import classification_report
-### kNN classifier
-### Compared to decision tree classifier
+# grades by race
+grades_by_race = surveyDf.groupby('Grades')['race']\
+    .value_counts(normalize=True).mul(100)\
+    .rename('percent')\
+    .reset_index()
+
+# grades_by_race pivot table
+grades_by_race = grades_by_race.pivot(index='Grades', columns='race', values='percent')
+
+# stacked bar chart of grades by race
+grades_by_race.plot(kind='bar', stacked=True)
+plt.xticks(list(range(len(grades))), grades, rotation=45)
+plt.xlabel('Grades')
+plt.ylabel('Percentage')
+plt.title('Grades by by race')
+plt.legend(title='Race', bbox_to_anchor=(1, 1))
+plt.show()
+
+#%%[markdown]
+# Discuss results
+
+#%%[markdown]
+# ### Linear model: Correlation of BMI with TV + Electronic usage
+
+# 1. Data cleanup
+# 2. Transform columns
+# 3. Correlation matrix
+# 4. Model
+# 5. Model analysis
+
+# %%
+# code to add random number to column
+# transform television column data using method below
+# adds a number between 0.0 and 1.0 to each value in column
+def transform_tv_value(hours):
+    if hours == 0.0:
+        return hours
+    
+    if hours < 5.0:
+        return hours +  np.random.uniform()
+    
+    return hours + np.random.uniform(high=3.0)
+
+surveyDf.Television = surveyDf.Television.apply(transform_tv_value)
+
+# first 10 rows
+surveyDf.Television[0:10]
+
+# BMI vs TV hours watch scatter plot
+
+# %%
+def transform_ec_value(hours):
+    if hours == 0.0:
+        return hours
+    
+    if hours < 1.0:
+        return hours +  np.random.uniform(high=0.4)
+    
+    if hours < 5.0:
+        return hours +  np.random.uniform()
+    
+    return hours + np.random.uniform(high=3.0)
+
+surveyDf.Electronic_Devices = surveyDf.Electronic_Devices.apply(transform_ec_value)
+
+# first 10 rows
+surveyDf.Electronic_Devices[0:10]
+# %%
+surveyDf.plot(x='Television', y='bmi', kind='scatter')
+surveyDf.plot(x='Electronic_Devices', y='bmi', kind='scatter')
+# %%
