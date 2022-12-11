@@ -32,6 +32,7 @@ from sklearn import metrics
 input_path=r"C:\Users\ADMIN\Desktop\masters\GW\intro to data mining"
 df=pd.read_csv(r"%s\cleaned_data5.csv"%input_path)
 df["Grades"]=df["Grades"].replace([1,2,3,4,5,6,7],["Mostly A's","Mostly B's","Mostly C's","Mostly D's","Mostly F's","None of these grades","Not sure"])
+df["marijuana_use"]=df["marijuana_use"].replace([1,2],[1,0])
 #--------------------------Grades BY Television-------------------------------#
 x, y ="Television", "Grades"
 
