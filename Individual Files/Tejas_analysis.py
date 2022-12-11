@@ -8,11 +8,6 @@ from scipy.stats import f_oneway
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-# sci-kit learn 
-import sklearn
-from sklearn import linear_model
-from sklearn.linear_model import LogisticRegression
-
 # stats models
 import statsmodels.api as sm
 from statsmodels.formula.api import mnlogit
@@ -77,8 +72,16 @@ plt.ylabel('Days physically active')
 plt.title('Counts for days physically active responses')
 plt.show()
 
+# Electronic device use
+sns.countplot(y=surveyDf.Electronic_Devices, color='#3E8989')
+plt.xlabel('Count')
+plt.ylabel('Hours of electronic device use')
+plt.title('Counts for hours of electronic device usage')
+plt.show()
+
 # Race
-sns.countplot(y=surveyDf.race, color='#6B0F1A')
+sns.countplot(y=surveyDf.race, color='#6B0F1A',
+    order=[1, 3, 2, 4])
 plt.yticks(list(range(len(race_groups))), race_groups,  rotation=45)
 plt.xlabel('Count')
 plt.ylabel('Race')
@@ -442,4 +445,15 @@ surveyDf.Electronic_Devices[0:10]
 # %%
 surveyDf.plot(x='Television', y='bmi', kind='scatter')
 surveyDf.plot(x='Electronic_Devices', y='bmi', kind='scatter')
+
 # %%
+from statsmodels.formula.api import ols
+model = ols(formula='bmi ~ Television + Electronic_Devices', data=surveyDf)
+
+#%%
+modelFit = model.fit()
+print( type(modelFit) )
+print( modelFit.summary() )
+
+#%%[markdown]
+# Only at 0.002 R^2 fit. Not a good model
