@@ -165,6 +165,46 @@ print("TV ANOVA result:\n", tv_anova_result)
 # With a p-value close to 0, this test yields a significant result. We must reject Hٖ₀ that the mean BMI of samples across television hours watched survey answeres are equal. Our result indicates that the BMI is significantly different between groups of children who watch television for differing amounts of time.
 # <br/><br/>
 
+# #### BMI across electronic device usage
+# # Examining the distribution of BMI across hours of electronic device usage within survey population
+
+#%%
+# violin plot
+sns.violinplot(y=surveyDf.bmi, x=surveyDf.Electronic_Devices, alpha=0.6, palette='husl')
+plt.title('BMI by hours of electronic device use')
+plt.xlabel('Device usage (# of hours)')
+plt.ylabel('BMI (kg/in²)')
+plt.show()
+
+# boxplot of BMI vs hours of TV
+sns.boxplot(y=surveyDf.bmi, x=surveyDf.Electronic_Devices, palette='husl')
+plt.title('BMI by hours of electronic device use')
+plt.xlabel('Device usage (# of hours)')
+plt.ylabel('BMI (kg/in²)')
+plt.show()
+
+#%%[markdown]
+# The hypothesis setup for this test looks as follows:
+# <br/><br/>
+# * Hٖ₀ = The mean BMIs for each answer choice are equal
+# * Hₐ = The mean BMIs is significantly different across answer choices
+# * alpha = 0.5
+#%%
+# code for ANOVA here
+unique_by_device = get_unique(surveyDf, 'Electronic_Devices')
+samples_by_device = [
+    surveyDf[surveyDf.Television == answer]['bmi']
+        for answer in unique_by_device
+]
+
+
+print("Total size: ", len(samples_by_device))
+print("Size of each group: ", [len(sample) for sample in samples_by_device])
+
+device_anova_result = f_oneway(*samples_by_device)
+print("TV ANOVA result:\n", device_anova_result)
+#%%[markdown]
+# 
 # #### BMI across hours spent exercising
 # This time, we will examine the distribution of BMI across answers for the physical activity question.
 # <br/><br/>
