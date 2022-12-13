@@ -41,15 +41,15 @@ import matplotlib.pyplot as plt
 #%%
 # The cleaned datasets can be found here: https://github.com/tejas-rawal/DATS6103-FinalProject/tree/main/Datasets
 # load the data
-surveyDf = pd.read_csv('Datasets/cleaned_data5.csv')
+data = pd.read_csv('Datasets/cleaned_data5.csv')
 # analyze structure
-print(f"Shape (rows, columns): {surveyDf.shape}")
+print(f"Shape (rows, columns): {data.shape}")
 print("\n\n")
 print("Dataframe info:\n")
-print(surveyDf.info())
+print(data.info())
 print("\n\n")
 print("Dataframe - first 5 rows\n")
-print(surveyDf.head())
+print(data.head())
 
 #%%[markdown]
 # # Adolescent behaviors and BMI
@@ -82,7 +82,7 @@ def get_unique(df: pd.DataFrame, column: str):
 
 #%%
 # Television use
-sns.countplot(y=surveyDf.Television, color='#1B065E')
+sns.countplot(y=data.Television, color='#1B065E')
 plt.yticks(list(range(len(tv_answers))), tv_answers)
 plt.xlabel('Count')
 plt.ylabel('Hours of TV watched')
@@ -90,7 +90,7 @@ plt.title('Counts for hours of television watched responses')
 plt.show()
 
 # Physical Activity
-sns.countplot(y=surveyDf.Physical_Activity, color='#34E5FF')
+sns.countplot(y=data.Physical_Activity, color='#34E5FF')
 plt.yticks(list(range(len(phys_answers))), phys_answers)
 plt.xlabel('Count')
 plt.ylabel('Days physically active')
@@ -98,14 +98,14 @@ plt.title('Counts for days physically active responses')
 plt.show()
 
 # Electronic device use
-sns.countplot(y=surveyDf.Electronic_Devices, color='#3E8989')
+sns.countplot(y=data.Electronic_Devices, color='#3E8989')
 plt.xlabel('Count')
 plt.ylabel('Hours of electronic device use')
 plt.title('Counts for hours of electronic device usage')
 plt.show()
 
 # Race
-sns.countplot(y=surveyDf.race, color='#6B0F1A',
+sns.countplot(y=data.race, color='#6B0F1A',
     order=[1, 3, 2, 4])
 plt.yticks(list(range(len(race_groups))), race_groups,  rotation=45)
 plt.xlabel('Count')
@@ -114,7 +114,7 @@ plt.title('Counts of race responses in survey population')
 plt.show()
 
 # Sex
-sns.countplot(y=surveyDf.sex, color='#F49E4C')
+sns.countplot(y=data.sex, color='#F49E4C')
 plt.yticks(list(range(len(sex))), sex)
 plt.xlabel('Count')
 plt.ylabel('Sex')
@@ -134,7 +134,7 @@ plt.show()
 # #### BMI Distribution
 # Let's start by examining the distribution of our target variable
 #%%
-sns.distplot(surveyDf.bmi, color="#60D394", bins=40,
+sns.distplot(data.bmi, color="#60D394", bins=40,
     hist_kws=dict(edgecolor="#000000", linewidth=1),
     kde_kws=dict(linewidth=2, color="#313715"))
 plt.xlabel('BMI (kg/in²)')
@@ -150,7 +150,7 @@ plt.show()
 
 #%%
 # violin plot of BMI distribution across hours of TV watched answers
-sns.violinplot(y=surveyDf.bmi, x=surveyDf.Television, alpha=0.6, palette='husl')
+sns.violinplot(y=data.bmi, x=data.Television, alpha=0.6, palette='husl')
 plt.title('BMI by hours of TV watched')
 plt.xlabel('TV watched (# of hours)')
 plt.ylabel('BMI (kg/in²)')
@@ -158,7 +158,7 @@ plt.xticks(list(range(7)), tv_answers)
 plt.show()
 
 # boxplot of BMI vs hours of TV
-sns.boxplot(y=surveyDf.bmi, x=surveyDf.Television, palette='husl')
+sns.boxplot(y=data.bmi, x=data.Television, palette='husl')
 plt.title('BMI by hours of TV watched')
 plt.xlabel('TV watched (# of hours)')
 plt.ylabel('BMI (kg/in²)')
@@ -175,9 +175,9 @@ plt.show()
 # * alpha = 0.5
 #%%
 # code for ANOVA here
-unique_by_tv = get_unique(surveyDf, 'Television')
+unique_by_tv = get_unique(data, 'Television')
 samples_by_tv = [
-    surveyDf[surveyDf.Television == answer]['bmi']
+    data[data.Television == answer]['bmi']
         for answer in unique_by_tv
 ]
 
@@ -197,14 +197,14 @@ print("TV ANOVA result:\n", tv_anova_result)
 
 #%%
 # violin plot
-sns.violinplot(y=surveyDf.bmi, x=surveyDf.Electronic_Devices, alpha=0.6, palette='husl')
+sns.violinplot(y=data.bmi, x=data.Electronic_Devices, alpha=0.6, palette='husl')
 plt.title('BMI by hours of electronic device use')
 plt.xlabel('Device usage (# of hours)')
 plt.ylabel('BMI (kg/in²)')
 plt.show()
 
 # boxplot of BMI vs hours of TV
-sns.boxplot(y=surveyDf.bmi, x=surveyDf.Electronic_Devices, palette='husl')
+sns.boxplot(y=data.bmi, x=data.Electronic_Devices, palette='husl')
 plt.title('BMI by hours of electronic device use')
 plt.xlabel('Device usage (# of hours)')
 plt.ylabel('BMI (kg/in²)')
@@ -219,9 +219,9 @@ plt.show()
 # * alpha = 0.5
 #%%
 # code for ANOVA here
-unique_by_device = get_unique(surveyDf, 'Electronic_Devices')
+unique_by_device = get_unique(data, 'Electronic_Devices')
 samples_by_device = [
-    surveyDf[surveyDf.Television == answer]['bmi']
+    data[data.Television == answer]['bmi']
         for answer in unique_by_device
 ]
 
@@ -239,7 +239,7 @@ print("Electronic device ANOVA result:\n", device_anova_result)
 # Distribution of BMI across responses to the physical activity question.
 
 #%%
-sns.violinplot(y=surveyDf.bmi, x=surveyDf.Physical_Activity, alpha=0.6, palette='husl')
+sns.violinplot(y=data.bmi, x=data.Physical_Activity, alpha=0.6, palette='husl')
 plt.title('BMI by days physical active')
 plt.xlabel('Days physically active')
 plt.ylabel('BMI (kg/in²)')
@@ -247,7 +247,7 @@ plt.xticks(list(range(len(phys_answers))), phys_answers)
 plt.show()
 
 # boxplot of BMI vs hours of TV
-sns.boxplot(y=surveyDf.bmi, x=surveyDf.Physical_Activity, palette='husl')
+sns.boxplot(y=data.bmi, x=data.Physical_Activity, palette='husl')
 plt.title('BMI by days physical active')
 plt.xlabel('Days physically active')
 plt.ylabel('BMI (kg/in²)')
@@ -263,9 +263,9 @@ plt.show()
 # * alpha = 0.5
 #%%
 # code for ANOVA here
-unique_by_phys = get_unique(surveyDf, 'Physical_Activity')
+unique_by_phys = get_unique(data, 'Physical_Activity')
 samples_by_phys = [
-    surveyDf[surveyDf.Physical_Activity == answer]['bmi']
+    data[data.Physical_Activity == answer]['bmi']
         for answer in unique_by_tv
 ]
 
@@ -283,7 +283,7 @@ print("Physical activity ANOVA result:\n", phy_anova_result)
 # Distribution of BMI by race
 
 #%%
-sns.violinplot(y=surveyDf.bmi, x=surveyDf.race, alpha=0.6, palette='husl')
+sns.violinplot(y=data.bmi, x=data.race, alpha=0.6, palette='husl')
 plt.title('BMI by race')
 plt.xlabel('Race')
 plt.ylabel('BMI (kg/in²)')
@@ -291,7 +291,7 @@ plt.xticks(list(range(len(race_groups))), race_groups, rotation=45)
 plt.show()
 
 # boxplot of BMI vs hours of TV
-sns.boxplot(y=surveyDf.bmi, x=surveyDf.race, palette='husl')
+sns.boxplot(y=data.bmi, x=data.race, palette='husl')
 plt.title('BMI by race')
 plt.xlabel('Race')
 plt.ylabel('BMI (kg/in²)')
@@ -307,9 +307,9 @@ plt.show()
 # - alpha = 0.5
 #%%
 # code for ANOVA here
-unique_by_race = get_unique(surveyDf, 'race')
+unique_by_race = get_unique(data, 'race')
 samples_by_race = [
-    surveyDf[surveyDf.race == answer]['bmi']
+    data[data.race == answer]['bmi']
         for answer in unique_by_race
 ]
 
@@ -326,7 +326,7 @@ print("Race ANOVA result:\n", race_anova_result)
 # #### BMI by sex
 # Distribution of BMI by the sex of the participant.
 #%%
-sns.violinplot(y=surveyDf.bmi, x=surveyDf.sex, alpha=0.6, palette='husl')
+sns.violinplot(y=data.bmi, x=data.sex, alpha=0.6, palette='husl')
 plt.title('BMI by sex')
 plt.xlabel('Sex')
 plt.ylabel('BMI (kg/in²)')
@@ -334,7 +334,7 @@ plt.xticks(list(range(len(sex))), sex)
 plt.show()
 
 # boxplot of BMI vs hours of TV
-sns.boxplot(y=surveyDf.bmi, x=surveyDf.sex, palette='husl')
+sns.boxplot(y=data.bmi, x=data.sex, palette='husl')
 plt.title('BMI by sex')
 plt.xlabel('Sex')
 plt.ylabel('BMI (kg/in²)')
@@ -350,9 +350,9 @@ plt.show()
 # - alpha = 0.5
 #%%
 # code for ANOVA here
-unique_by_sex = get_unique(surveyDf, 'sex')
+unique_by_sex = get_unique(data, 'sex')
 samples_by_sex = [
-    surveyDf[surveyDf.sex == sex]['bmi']
+    data[data.sex == sex]['bmi']
         for sex in unique_by_sex
 ]
 
