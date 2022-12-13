@@ -1,7 +1,7 @@
 #%%[markdown]
 # # Introduction
 # For our final project, we analyzed data collected by the CDC’s Youth Risk Behavior Surveillance System. This is a survey that is conducted every 2 years by states and local school districts across the country to collect information about adolescent tendencies as it relates to their physical and educational outcomes.
-# <br/><br/>
+#
 # We hypothesize that technology use may have the potential to impede on the adolescents' well-being and lead to adverse effects on their physical health and educational performance. Furthermore, we beleive risky behaviors such as drug use can also have detrimental effects.
 
 # # SMART Questions
@@ -123,11 +123,11 @@ plt.show()
 
 #%%[markdown]
 # For the televisons hours watched survey questions, most participants responded that they watched no TV on an average school day.
-# <br/><br/>
+#
 # For the question addressing days of physcical activity within a typical school week, a majority of participants responded that they were active for at least 60 minutes on all 7 days of the week.
-# <br/><br/>
+#
 # In our survey population, the majority of respondents identified as White.
-# <br/><br/>
+#
 # There is a near 50-50 split of each sex (male, female) in the survey population.
 
 #%%[markdown]
@@ -169,7 +169,7 @@ plt.show()
 # #### One-way ANOVA test for hours of television watched
 
 # The hypothesis setup for this test looks as follows:
-# <br/><br/>
+#
 # * Hٖ₀ = The mean BMIs for each answer choice are equal
 # * Hₐ = The mean BMIs is significantly different across answer choices
 # * alpha = 0.5
@@ -213,7 +213,7 @@ plt.show()
 #%%[markdown]
 # #### One-way ANOVA test for electronic device usage
 # The hypothesis setup for this test looks as follows:
-# <br/><br/>
+#
 # * Hٖ₀ = The mean BMIs for each answer choice are equal
 # * Hₐ = The mean BMIs is significantly different across answer choices
 # * alpha = 0.5
@@ -257,7 +257,7 @@ plt.show()
 #%%[markdown]
 # #### One-way ANOVA test for physical activity
 # The hypothesis setup for this test looks as follows:
-# <br/><br/>
+#
 # * Hٖ₀ = The mean BMIs for each answer choice are equal
 # * Hₐ = The mean BMIs is significantly different across answer choices
 # * alpha = 0.5
@@ -301,7 +301,7 @@ plt.show()
 #%%[markdown]
 # #### One-way ANOVA test for race 
 # The hypothesis setup for this test looks as follows:
-# <br/><br/>
+#
 # - Hٖ₀ = The mean BMI for each race is equal
 # - Hₐ = The mean BMI is significantly different across race
 # - alpha = 0.5
@@ -344,7 +344,7 @@ plt.show()
 #%%[markdown]
 # #### One-way ANOVA test for sex
 # The hypothesis setup for this test looks as follows:
-# <br/><br/>
+# 
 # - Hٖ₀ = The mean BMIs for each sex are equal
 # - Hₐ = The mean BMIs is significantly different between each sex
 # - alpha = 0.5
@@ -373,3 +373,19 @@ print("Sex ANOVA result:\n", sex_anova_result)
 
 #%%[markdown]
 # # Adolescent behaviors and vape use classification (Carrie)
+
+#%%[markdown]
+# # Conclusion
+# We received statistically significant results from performing ANOVA and Chi-squared tests agains the relationships between our variables of interest.
+# This allowed us to continue our pursuit of studying the effects of different behaviors on health and education outcomes for adolescent youth by developing classification models.
+#
+# The models we built to classify health outcomes and grades did not return a significantly high accuracy. We believe this was due to weak correlation amongst our predictors.
+#
+# The classification models we built to predict adolescent vape use did result in a significantly high accuracy.
+# 
+# Some of our challenges were:
+# - Cleaning a relatively large dataset with many missing values for responses from earlier years.
+# - We had a large number of behaviors to choose from which can be a good and bad problem.
+# 
+# 
+# Overall, modeling adolescent social behaviors and outcomes is a complicated task. We could potentially include responses from other behavioral questions in the survey to improve the accuracy of our model, but that will require deeper analysis of each new variable we decide to use.
