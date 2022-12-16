@@ -30,6 +30,19 @@
 # package imports
 import pandas as pd
 import numpy as np
+from scipy.stats import chi2_contingency
+import seaborn as sns
+import matplotlib.pyplot as plt
+import sklearn
+from sklearn import linear_model
+from sklearn.linear_model import LogisticRegression
+import statsmodels.api as sm
+from statsmodels.formula.api import mnlogit
+from statsmodels.formula.api import glm
+from statsmodels.formula.api import ols
+import scipy.stats as stats
+from sklearn.tree import DecisionTreeClassifier # Import Decision Tree Classifier
+
 
 # one-way ANOVA
 from scipy.stats import f_oneway
@@ -370,10 +383,70 @@ print("Sex ANOVA result:\n", sex_anova_result)
 
 #%%[markdown]
 # # Effect of behaviors and race on academic outcomes (Rajeev)
+#%%
+#recoding race from numeric to categorical
+data["race"]=data["race"].replace([1,2,3,4],["White","Black or African American","Hispanic/Latino","All Other Races"])
+#recoding grades from numeric to categorical
+data["Grades"]=data["Grades"].replace([1,2,3,4,5,6,7],["Mostly A's","Mostly B's","Mostly C's","Mostly D's","Mostly F's","None of these grades","Not sure"])
+#creating a contingency table for race and grades
+contigency = pd.crosstab(index=data['race'], columns=data['Grades'], margins=True, margins_name="Total")
+plt.figure(figsize=(9,4))
+sns.heatmap(contigency, annot=True, cmap="Blues", vmin= 40, vmax=36000,fmt='g')
+plt.title("Contingency Table of Race and Grades")
+plt.ylabel("Race")
+#chi-squared test of independence
+stat, p, dof, expected = chi2_contingency(contigency)
+#checking the significance
+alpha = 0.05
+print("The results of the chi-squared test of independence showed that the p value is " + str(p) + " which indicates a significant dependent relationship between race and grades.")
+#%%[markdown]
+#The contingency table between racial groups and their grades reveals that a majority individuals, regardless of race, report having mostly A's and B's for their grades. A majority of white individuals and individuals of other races have mostly A's while a majority of Black/African American and Hispanic/Latino students report having mostly B's. 
+
 
 #%%[markdown]
 # # Adolescent behaviors and vape use classification (Carrie)
+#%%
+# recoding variables for tables 
+data["Vape_Use"]=data["Vape_Use"].replace([1,2],["Yes","No"])
+vape_yes = data[data["Vape_Use"]=="Yes"]
+vape_no = data[data["Vape_Use"]=="No"]
 
+#%%
+#vape_use visulization
+ax = sns.countplot(x=data["Vape_Use"],data=data,palette='husl')
+for container in ax.containers:
+    ax.bar_label(container)
+plt.xlabel( "Vape Use" , size = 12 )
+plt.ylabel( "Frequency" , size = 12 )
+plt.title("Distribution of Vape Use")
+
+#%%[markdown]
+#This figure shows the proportion of individuals in the sample who do and do not use electronic vapor products. More specifically, there are 17,102 individuals who do not engage in vaping and 14,482 who do engage in vaping which makes about a 2,620 person difference. 
+#%%
+#race and vape visulization
+plt.figure(figsize=(9,4))
+ax = sns.countplot(x=data["Vape_Use"],hue="race",data=data)
+for container in ax.containers:
+    ax.bar_label(container)
+plt.xlabel( "Vape Use" , size = 12 )
+plt.ylabel( "Frequency" , size = 12 ) 
+plt.title("Distribution of Vape Use by Race")
+plt.legend(loc='upper center')
+#%%[markdown]
+# In relation to race and vaping habits, there is a pretty similar distribution between races in terms of individuals that vape and do not vape. More specifically, there is less than a 200 person difference between Hispanic/Latino individuals who vape and do not vape. There is about a 1000 person difference between White individuals, Black/African American individuals, and individuals of all other races who vape and do vape.
+#%%
+ax = sns.countplot(x="Television",hue="Vape_Use", data=data)
+for container in ax.containers:
+    ax.bar_label(container)
+plt.title("Bar Chart of Hours Watching Television per Day by Vape Use")
+plt.ylabel( "Frequency" , size = 12 )
+plt.xlabel( "Time Watching Television (Hours)" , size = 12 )
+ts = stats.ttest_ind(a=vape_yes["Television"], b=vape_no["Television"], equal_var=True)
+print("Two-Sample T-test:",ts)
+
+#%%[markdown]
+# The plot shows the differences in hours of television watched per day by individuals who do and do not vape. Interestingly, between the housrs of 0.0 and 2.0 there are many more individuals who report not vaping. In comparison, between the hours of 3.0 and 5.0 it is apparent that a greater proportion of individuals report vaping. It is important to the pattern that the more hours of television watched in the day, the more the individuals report vaping in comparison to not vaping. These results may imply a relationship between number of hours of television per day and vaping habits considering that the gap between those who vape and those who do not vape becomes smaller and smaller with every extra hour of television watched per day. In addition, after running a two-sample t-test between those who and who do not vape, the results indicate that there is a significant different in the average number hours of television watch per day between groups (p<0.05).
+#%%[markdown]
 #%%[markdown]
 # # Conclusion
 # We received statistically significant results from performing ANOVA and Chi-squared tests agains the relationships between our variables of interest.
