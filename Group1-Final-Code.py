@@ -383,12 +383,14 @@ print("Sex ANOVA result:\n", sex_anova_result)
 
 #%%[markdown]
 # # Effect of behaviors and race on academic outcomes (Rajeev)
+
 #%%
-#recoding race from numeric to categorical
+# recoding race from numeric to categorical 
 data["race"]=data["race"].replace([1,2,3,4],["White","Black or African American","Hispanic/Latino","All Other Races"])
 #recoding grades from numeric to categorical
 data["Grades"]=data["Grades"].replace([1,2,3,4,5,6,7],["Mostly A's","Mostly B's","Mostly C's","Mostly D's","Mostly F's","None of these grades","Not sure"])
-#creating a contingency table for race and grades
+#%%[markdown]
+# #### Contingency Table of Race and Grades and Chi-Squared Test of Independence
 contigency = pd.crosstab(index=data['race'], columns=data['Grades'], margins=True, margins_name="Total")
 plt.figure(figsize=(9,4))
 sns.heatmap(contigency, annot=True, cmap="Blues", vmin= 40, vmax=36000,fmt='g')
@@ -411,8 +413,8 @@ data["Vape_Use"]=data["Vape_Use"].replace([1,2],["Yes","No"])
 vape_yes = data[data["Vape_Use"]=="Yes"]
 vape_no = data[data["Vape_Use"]=="No"]
 
-#%%
-#vape_use visulization
+#%%[markdown]
+#Barplot of Vape Use in Adolescents
 ax = sns.countplot(x=data["Vape_Use"],data=data,palette='husl')
 for container in ax.containers:
     ax.bar_label(container)
@@ -422,10 +424,10 @@ plt.title("Distribution of Vape Use")
 
 #%%[markdown]
 #This figure shows the proportion of individuals in the sample who do and do not use electronic vapor products. More specifically, there are 17,102 individuals who do not engage in vaping and 14,482 who do engage in vaping which makes about a 2,620 person difference. 
-#%%
-#race and vape visulization
+#%%[markdown]
+# #### Vape Use by Racial Groups
 plt.figure(figsize=(9,4))
-ax = sns.countplot(x=data["Vape_Use"],hue="race",data=data)
+ax = sns.countplot(x=data["Vape_Use"],hue="race",data=data,palette='husl')
 for container in ax.containers:
     ax.bar_label(container)
 plt.xlabel( "Vape Use" , size = 12 )
@@ -434,8 +436,9 @@ plt.title("Distribution of Vape Use by Race")
 plt.legend(loc='upper center')
 #%%[markdown]
 # In relation to race and vaping habits, there is a pretty similar distribution between races in terms of individuals that vape and do not vape. More specifically, there is less than a 200 person difference between Hispanic/Latino individuals who vape and do not vape. There is about a 1000 person difference between White individuals, Black/African American individuals, and individuals of all other races who vape and do vape.
-#%%
-ax = sns.countplot(x="Television",hue="Vape_Use", data=data)
+#%%[markdown]
+# #### Hours of Watching Television per Day by Vape Use
+ax = sns.countplot(x="Television",hue="Vape_Use", data=data,palette='husl')
 for container in ax.containers:
     ax.bar_label(container)
 plt.title("Bar Chart of Hours Watching Television per Day by Vape Use")
@@ -447,6 +450,164 @@ print("Two-Sample T-test:",ts)
 #%%[markdown]
 # The plot shows the differences in hours of television watched per day by individuals who do and do not vape. Interestingly, between the housrs of 0.0 and 2.0 there are many more individuals who report not vaping. In comparison, between the hours of 3.0 and 5.0 it is apparent that a greater proportion of individuals report vaping. It is important to the pattern that the more hours of television watched in the day, the more the individuals report vaping in comparison to not vaping. These results may imply a relationship between number of hours of television per day and vaping habits considering that the gap between those who vape and those who do not vape becomes smaller and smaller with every extra hour of television watched per day. In addition, after running a two-sample t-test between those who and who do not vape, the results indicate that there is a significant different in the average number hours of television watch per day between groups (p<0.05).
 #%%[markdown]
+# #### Hours of Electronic Device Use per Day by Vape Use
+ax = sns.countplot(x="Electronic_Devices",hue="Vape_Use", data=data,palette='husl')
+for container in ax.containers:
+    ax.bar_label(container)
+plt.title("Bar Chart of Hours on Electronic Devices per Day by Vape Use")
+plt.ylabel( "Frequency" , size = 12 )
+plt.xlabel( "Time on Electronic Devices (Hours)" , size = 12 )
+plt.legend(loc='center right')
+s = stats.ttest_ind(a=vape_yes["Electronic_Devices"], b=vape_no["Electronic_Devices"], equal_var=True)
+print("Two-Sample T-test:",s)
+
+#%%
+#recoding race from numeric to categorical
+data["race"]=data["race"].replace(["White","Black or African American","Hispanic/Latino","All Other Races"],[0,1,2,3])
+# recording vape use to numeric
+data["Vape_Use"]=data["Vape_Use"].replace(["No","Yes"],[0,1])
+# recoding marijuana use to numeric
+data["marijuana_use"]=data["marijuana_use"].replace([1,2],[1,0])
+#%%
+#splitting data for logit regression
+xdata = data[["Television","Electronic_Devices",'marijuana_use',"race"]]
+ydata = data[["Vape_Use"]]
+features = ["Television","Electronic_Devices", 'marijuana_use','race']
+#%%[markdown]
+# The plot shows mixed results with the two ends of the hour distribution having the smallest differences between those who do and do not report vaping.The largest difference between groups clusters at 2.0 hours. Overall, there is no definite trend in this graph depicting differences in time spent on electronic devices per day between vaping and non-vaping individuals. This conclusion is furter supported by the insignicant (p>0.05) t-test which indicates that there is no significant difference in the average number of hours spent on electronic devices between the vaping and non-vaping groups. 
+
+#%%[markdown]
+# #### Contingency Table of Marijuana and Vape Use and Chi-Squared Test of Independence
+data["marijuana_use"]=data["marijuana_use"].replace([1,0],["Yes","No"])
+data["Vape_Use"]=data["Vape_Use"].replace([0,1],["No","Yes"])
+#creating a contingency table for race and grades
+contigency1 = pd.crosstab(index=data['marijuana_use'], columns=data['Vape_Use'], margins=True, margins_name="Total")
+plt.figure(figsize=(9,4))
+sns.heatmap(contigency1, annot=True, cmap="Blues", vmin= 40, vmax=36000,fmt='g')
+plt.title("Contingency Table of Marijuana Use and Vape Use")
+plt.xlabel('Vape Use')
+plt.ylabel('Marijuana Use')
+
+
+stat, p, dof, expected = chi2_contingency(contigency1)
+#checking the significance
+alpha = 0.05
+print("The results of the chi-squared test of independence showed that the p value is " + str(p) + " which indicates a significant dependent relationship between marijuana use and e-cig use.")
+#%%
+# running logistic regression and splitting into training and testing data 
+model = glm(formula="Vape_Use ~ Television + Electronic_Devices + C(marijuana_use)+ C(race)",data=data, family=sm.families.Binomial())
+model = model.fit()
+print(model.summary())
+
+from sklearn.model_selection import train_test_split
+x_train, x_test, y_train, y_test = train_test_split(xdata, ydata, test_size=0.3, random_state=1)
+from sklearn.linear_model import LogisticRegression
+
+logit = LogisticRegression()  # instantiate
+logit.fit(x_train, y_train)
+print('Logit model accuracy (with the test set):', logit.score(x_test, y_test))
+print('Logit model accuracy (with the train set):',logit.score(x_train, y_train))
+
+#creating prediction function to test test data  with model 
+y_pred = logit.predict(x_test)
+
+#%%[markdown]
+# #### Classification Report and Confusion Matrix of Logistic Regression Predicting Vape Use
+from sklearn.metrics import classification_report
+y_true, y_pred = y_test, logit.predict(x_test)
+print("Classification Report:",end='\n')
+print(classification_report(y_true, y_pred))
+
+from sklearn.metrics import confusion_matrix
+c = confusion_matrix(y_test,y_pred)
+print("Confusion Matrix:",end='\n')
+ax = sns.heatmap(c, annot=True,fmt='g')
+ax.xaxis.set_label_position('top')
+ax.set_xticklabels(['Positive', 'Negative'])
+ax.set_yticklabels(['Positive', 'Negative'], rotation=90, va='center')
+ax.add_patch(plt.Rectangle((0, 1), 1, 0.1, color='white', clip_on=False, zorder=0, transform=ax.transAxes))
+ax.add_patch(plt.Rectangle((0, 0), -0.1, 1, color='white', clip_on=False, zorder=0, transform=ax.transAxes))
+plt.tight_layout()
+plt.title("Confusion Matrix")
+
+#%%[markdown]
+# According to the classification report of our logistic regression model, out of all adolescents that the model predicted would use vape products, only about 79% actually do use vape products. Out of all the adolescents that actually do vape, the model only predicted this outcome correctly for 66% of those adolescents. Since the F1-Score is somewhat close to 1, we can assume that the model does an good job of predicting whether or not adolescents will use vape products. The overall accuracy of the model was 77% which is a good sign that the model is efficient at classifying between adolescents who vape and who do not vape.
+#%%[markdown]
+# #### ROC-AUC of Logistic Regression Model
+from sklearn.metrics import roc_auc_score, roc_curve
+
+ns_probs = [0 for _ in range(len(y_test))]
+lr_probs = logit.predict_proba(x_test)
+lr_probs = lr_probs[:, 1]
+ns_auc = roc_auc_score(y_test, ns_probs)
+lr_auc = roc_auc_score(y_test, lr_probs)
+print('No Skill: ROC AUC=%.3f' % (ns_auc))
+print('Logistic: ROC AUC=%.3f' % (lr_auc))
+ns_fpr, ns_tpr, _ = roc_curve(y_test, ns_probs)
+lr_fpr, lr_tpr, _ = roc_curve(y_test, lr_probs)
+plt.plot(ns_fpr, ns_tpr, linestyle='--', label='No Skill')
+plt.plot(lr_fpr, lr_tpr, marker='.', label='Logistic')
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title("Receiver Operating Characteristic - Logisitc Regression")
+plt.legend()
+plt.show()
+#%%[markdown]
+# The ROC curve ad AUC score help us to understand separability. More specifically, it tells use how much our model is capable of distinguishing between adolescents who do and do not vape. The ROC curve trends somewhat to the upper left corner which indicates a pretty good model. The AUC score is about 0.78 which is acceptable but it would be preferred to be closer to 0.8. Overall, the ROC curve and AUC score indicate that our logistic regression does a good job at discriminating between classes. 
+
+#%%[markdown]
+# #### Decision Tree Classifier of Vape Use
+x_train1, x_test1, y_train1, y_test1 = train_test_split(xdata, ydata, test_size=0.3, random_state=1)
+clf = DecisionTreeClassifier(class_weight='balanced',max_depth=3)
+#creating prediction function to test test data  with model 
+y_pred1 = clf.fit(x_train1, y_train1).predict(x_test1)
+
+from sklearn.metrics import accuracy_score
+print("Accuracy of Decision Tree Classifier is:", accuracy_score(y_test1, y_pred1))
+
+
+y_true1, y_pred1 = y_test1, clf.predict(x_test1)
+print("Classification Report:",end='\n')
+print(classification_report(y_true1, y_pred1))
+
+cm = confusion_matrix(y_test, y_pred)
+
+import seaborn as sns
+ax = sns.heatmap(cm, annot=True,fmt='g',cmap="Blues")
+ax.set_xlabel('Actual Values')
+ax.set_ylabel('Predicted')
+ax.tick_params(length=0, labeltop=True, labelbottom=False)
+ax.xaxis.set_label_position('top')
+ax.set_xticklabels(['Positive', 'Negative'])
+ax.set_yticklabels(['Positive', 'Negative'], rotation=90, va='center')
+ax.add_patch(plt.Rectangle((0, 1), 1, 0.1, color='white', clip_on=False, zorder=0, transform=ax.transAxes))
+ax.add_patch(plt.Rectangle((0, 0), -0.1, 1, color='white', clip_on=False, zorder=0, transform=ax.transAxes))
+plt.tight_layout()
+plt.title("Confusion Matrix")
+plt.show()
+
+#%%[markdown]
+# Similar to our logistic regression model classifying vape use, our decision tree predicted that out of all adolescents that the model predicted would use vape products, only about 79% actually do use vape products. Out of all the adolescents that actually do vape, the model only predicted this outcome correctly for 66% of those adolescents. Since the F1-Score is somewhat close to 1, we can assume that the model does an good job of predicting whether or not adolescents will use vape products. The overall accuracy of the model was 77% which is a good sign that the model is efficient at classifying between adolescents who vape and who do not vape.
+#%%[markdown]
+# #### ROC-AUC of Decision Tree Classifier Model
+ns_probs = [0 for _ in range(len(y_test))]
+lr_probs = clf.predict_proba(x_test)
+lr_probs = lr_probs[:, 1]
+ns_auc = roc_auc_score(y_test, ns_probs)
+lr_auc = roc_auc_score(y_test, lr_probs)
+print('No Skill: ROC AUC=%.3f' % (ns_auc))
+print('DecisionTree: ROC AUC=%.3f' % (lr_auc))
+ns_fpr, ns_tpr, _ = roc_curve(y_test, ns_probs)
+lr_fpr, lr_tpr, _ = roc_curve(y_test, lr_probs)
+plt.plot(ns_fpr, ns_tpr, linestyle='--', label='No Skill')
+plt.plot(lr_fpr, lr_tpr, marker='.', label='DecisionTree')
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title("Receiver Operating Characteristic - DecisionTree ")
+plt.legend()
+plt.show()
+#%%[markdown]
+# The ROC curve ad AUC score tells use how much our model is capable of distinguishing between adolescents who do and do not vape. Like the logistic regression model, the ROC curve trends somewhat to the upper left corner which indicates a pretty good model. The AUC score is about 0.78 which is acceptable but it would be preferred to be closer to 0.8. Overall, the ROC curve and AUC score indicate that our logistic regression does a good job at discriminating between classes of vaping and not vaping. 
 #%%[markdown]
 # # Conclusion
 # We received statistically significant results from performing ANOVA and Chi-squared tests agains the relationships between our variables of interest.
