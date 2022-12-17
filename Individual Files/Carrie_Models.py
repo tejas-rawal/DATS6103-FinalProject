@@ -82,6 +82,7 @@ for container in ax.containers:
 plt.title("Bar Chart of Hours on Electronic Devices per Day by Vape Use")
 plt.ylabel( "Frequency" , size = 12 )
 plt.xlabel( "Time on Electronic Devices (Hours)" , size = 12 )
+plt.legend(loc='center right')
 s = stats.ttest_ind(a=vape_yes["Electronic_Devices"], b=vape_no["Electronic_Devices"], equal_var=True)
 print("Two-Sample T-test:",s)
 
@@ -91,14 +92,13 @@ print("Two-Sample T-test:",s)
 ## there is no significant difference in the average number of hours spent on electronic devices between the vaping and non-vaping groups. 
 #%%
 #recoding race from numeric to categorical
-data["race"]=data["race"].replace(["White","Black or African American","Hispanic/Latino","All Other Races"],[1,2,3,4])
-data["race"]=data["race"].astype("category")
+data["race"]=data["race"].replace(["White","Black or African American","Hispanic/Latino","All Other Races"],[0,1,2,3])
+
 #%%
 data["Vape_Use"]=data["Vape_Use"].replace(["No","Yes"],[0,1])
-data["Vape_Use"] = data["Vape_Use"].astype('category')
+#data["Vape_Use"] = data["Vape_Use"].astype('category')
 #%%
 data["marijuana_use"]=data["marijuana_use"].replace([1,2],[1,0])
-data["marijuana_use"] = data["marijuana_use"].astype('category')
 
 #%%
 #recoding data for logit regression
@@ -107,8 +107,8 @@ ydata = data[["Vape_Use"]]
 
 features = ["Television","Electronic_Devices", 'marijuana_use','race']
 print(xdata)
-#%%
-model = glm(formula="Vape_Use ~ Television + Electronic_Devices + marijuana_use+ C(race, Treatment(reference = 1))",data=data, family=sm.families.Binomial())
+#%%9
+model = glm(formula="Vape_Use ~ Television + Electronic_Devices + C(marijuana_use)+ C(race)",data=data, family=sm.families.Binomial())
 model = model.fit()
 print(model.summary())
 
@@ -178,7 +178,20 @@ print("Accuracy of Decision Tree Classifier is:",metrics.accuracy_score(y_test, 
 cm = confusion_matrix(y_test, y_pred)
 print("Confusion Matrix:",end="\n")
 print(cm)
-
+import seaborn as sns
+ax = sns.heatmap(cm, annot=True,fmt='g',cmap="Blues")
+ax.set_xlabel('Actual Values')
+ax.set_ylabel('Predicted')
+ax.tick_params(length=0, labeltop=True, labelbottom=False)
+ax.xaxis.set_label_position('top')
+ax.set_xticklabels(['Positive', 'Negative'])
+ax.set_yticklabels(['Positive', 'Negative'], rotation=90, va='center')
+ax.add_patch(plt.Rectangle((0, 1), 1, 0.1, color='white', clip_on=False, zorder=0, transform=ax.transAxes))
+ax.add_patch(plt.Rectangle((0, 0), -0.1, 1, color='white', clip_on=False, zorder=0, transform=ax.transAxes))
+plt.tight_layout()
+plt.title("Confusion Matrix")
+plt.show()
+#%%
 # generate a no skill prediction (majority class)
 ns_probs = [0 for _ in range(len(y_test))]
 # predict probabilities
@@ -210,7 +223,7 @@ plt.show()
 from sklearn import tree
 from sklearn.tree import DecisionTreeRegressor
 import matplotlib.pyplot as plt
-fig, axes = plt.subplots(nrows = 1,ncols = 1,figsize = (9,9), dpi=800)
+fig, axes = plt.subplots(nrows = 1,ncols = 1,figsize = (7,7), dpi=800)
 tree.plot_tree(clf,
               feature_names = features);
 
@@ -229,6 +242,7 @@ contigency = pd.crosstab(index=data['race'], columns=data['Grades'], margins=Tru
 plt.figure(figsize=(9,4))
 sns.heatmap(contigency, annot=True, cmap="Blues", vmin= 40, vmax=36000,fmt='g')
 plt.title("Contingency Table of Race and Grades")
+plt.ylabel("Race")
 
 ## The contingency table between racial groups and their grades reveals that a majority individuals, regardless of race, report
 ## having mostly A's and B's for their grades. A majority of white individuals and individuals of other races have mostly A's
