@@ -234,7 +234,7 @@ plt.show()
 # code for ANOVA here
 unique_by_device = get_unique(data, 'Electronic_Devices')
 samples_by_device = [
-    data[data.Television == answer]['bmi']
+    data[data.Electronic_Devices == answer]['bmi']
         for answer in unique_by_device
 ]
 
@@ -279,7 +279,7 @@ plt.show()
 unique_by_phys = get_unique(data, 'Physical_Activity')
 samples_by_phys = [
     data[data.Physical_Activity == answer]['bmi']
-        for answer in unique_by_tv
+        for answer in unique_by_phys
 ]
 
 print("Number of samples: ", len(samples_by_phys))
@@ -376,7 +376,7 @@ sex_anova_result = f_oneway(*samples_by_sex)
 print("Sex ANOVA result:\n", sex_anova_result)
 
 #%%[markdown]
-# With a p-value of 0.00013, we can reject our Hٖ₀ that the mean BMI for adolescents of each sex is equal. Our result indicates that the BMI is significantly different between female and male adolescents in the survey population.
+# With a p-value of 0.0002, we can reject our Hٖ₀ that the mean BMI for adolescents of each sex is equal. Our result indicates that the BMI is significantly different between female and male adolescents in the survey population.
 
 #%%[markdown]
 # # Effect of behaviors on physical outcomes (Shreyas)

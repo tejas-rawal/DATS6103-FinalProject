@@ -121,7 +121,7 @@ plt.title('Density Plot of Survey Population BMI')
 plt.show()
 
 #%%[markdown]
-# The distribution of BMI within our population seems failry normal, with a slight right-skewness. This can be expalined by respondendts with unusually high BMIs shifting the distribution.
+# The distribution of BMI within our population seems failry normal, with a slight right-skewness. This can be expalined by respondendts with unusually high BMIs shifting the distribution.    
 
 #%%
 # violin plot of BMI distribution across hours of TV watched answers
@@ -193,7 +193,7 @@ plt.show()
 # code for ANOVA here
 unique_by_device = get_unique(surveyDf, 'Electronic_Devices')
 samples_by_device = [
-    surveyDf[surveyDf.Television == answer]['bmi']
+    surveyDf[surveyDf.Electronic_Devices == answer]['bmi']
         for answer in unique_by_device
 ]
 
@@ -236,7 +236,7 @@ plt.show()
 unique_by_phys = get_unique(surveyDf, 'Physical_Activity')
 samples_by_phys = [
     surveyDf[surveyDf.Physical_Activity == answer]['bmi']
-        for answer in unique_by_tv
+        for answer in unique_by_phys
 ]
 
 print("Total size: ", len(samples_by_phys))
