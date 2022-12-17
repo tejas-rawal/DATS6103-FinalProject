@@ -174,7 +174,7 @@ clf = clf.fit(x_train,y_train)
 #Predict the response for test dataset
 y_pred = clf.predict(x_test)
 
-print("Accuracy of Decision Tree Classifier is:",metrics.accuracy_score(y_test, y_pred))
+print("Accuracy of Decision Tree Classifier is:", accuracy_score(y_test, y_pred))
 cm = confusion_matrix(y_test, y_pred)
 print("Confusion Matrix:",end="\n")
 print(cm)
