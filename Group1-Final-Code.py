@@ -461,18 +461,6 @@ plt.legend(loc='center right')
 s = stats.ttest_ind(a=vape_yes["Electronic_Devices"], b=vape_no["Electronic_Devices"], equal_var=True)
 print("Two-Sample T-test:",s)
 
-#%%
-#recoding race from numeric to categorical
-data["race"]=data["race"].replace(["White","Black or African American","Hispanic/Latino","All Other Races"],[0,1,2,3])
-# recording vape use to numeric
-data["Vape_Use"]=data["Vape_Use"].replace(["No","Yes"],[0,1])
-# recoding marijuana use to numeric
-data["marijuana_use"]=data["marijuana_use"].replace([1,2],[1,0])
-#%%
-#splitting data for logit regression
-xdata = data[["Television","Electronic_Devices",'marijuana_use',"race"]]
-ydata = data[["Vape_Use"]]
-features = ["Television","Electronic_Devices", 'marijuana_use','race']
 #%%[markdown]
 # The plot shows mixed results with the two ends of the hour distribution having the smallest differences between those who do and do not report vaping.The largest difference between groups clusters at 2.0 hours. Overall, there is no definite trend in this graph depicting differences in time spent on electronic devices per day between vaping and non-vaping individuals. This conclusion is furter supported by the insignicant (p>0.05) t-test which indicates that there is no significant difference in the average number of hours spent on electronic devices between the vaping and non-vaping groups. 
 
@@ -493,11 +481,34 @@ stat, p, dof, expected = chi2_contingency(contigency1)
 #checking the significance
 alpha = 0.05
 print("The results of the chi-squared test of independence showed that the p value is " + str(p) + " which indicates a significant dependent relationship between marijuana use and e-cig use.")
+#%%[markdown]
+#The contingency table between marijuana and vape usage for shows that about half of the sample neither vape or smoke marijuana (~46%) while about 30% of the sample did report vaping and smoking marijuana. A very small percentage of the sample either smoke marijuana or vape but do not engage in both. In addition, our chi-squared test of independence indicaed a significant dependent relationship between marijuana and vape use. 
 #%%
+#recoding race from numeric to categorical
+data["race"]=data["race"].replace(["White","Black or African American","Hispanic/Latino","All Other Races"],[0,1,2,3])
+data["Vape_Use"]=data["Vape_Use"].replace(["No","Yes"],[0,1])
+data["marijuana_use"]=data["marijuana_use"].replace(["No","Yes"],[0,1])
+
+#%%
+#recoding race from numeric to categorical
+#data["race"]=data["race"].replace(["White","Black or African American","Hispanic/Latino","All Other Races"],[0,1,2,3])
+# recording vape use to numeric
+#data["Vape_Use"]=data["Vape_Use"].replace(["No","Yes"],[0,1])
+# recoding marijuana use to numeric
+data["marijuana_use"]=data["marijuana_use"].replace([1,2],[1,0])
+#%%
+#splitting data for logit regression
+xdata = data[["Television","Electronic_Devices",'marijuana_use',"race"]]
+ydata = data[["Vape_Use"]]
+features = ["Television","Electronic_Devices", 'marijuana_use','race']
+#%%[markdown]
+# #### Logistic Regression Model of Vape Use
+#%% 
 # running logistic regression and splitting into training and testing data 
 model = glm(formula="Vape_Use ~ Television + Electronic_Devices + C(marijuana_use)+ C(race)",data=data, family=sm.families.Binomial())
 model = model.fit()
 print(model.summary())
+
 
 from sklearn.model_selection import train_test_split
 x_train, x_test, y_train, y_test = train_test_split(xdata, ydata, test_size=0.3, random_state=1)
@@ -510,6 +521,8 @@ print('Logit model accuracy (with the train set):',logit.score(x_train, y_train)
 
 #creating prediction function to test test data  with model 
 y_pred = logit.predict(x_test)
+#%%[markdown]
+#After converting the coefficients to their exponential form, it can be said that in comparison to individuals that do not smoke marijuana, the odds-ratio of using vape products is multiplied by 12.7 for individuals who do smoke marijuana, when holding all other predictors constant. Also, holding all other predictors constant, for African American individuals the odds-ratio of using vape products is multiplied by 2.46, multiplied by 1.19 for Hispanic/Lation individuals, and multiplied by 1.35 for individuals of all other races in comparison to White individuals. Lastly, for every hour increase in television use per day, the odds-ratio of using vape products is multiplied by 1.03. Furthermore, the relationship between electronic device usage and vape use was not signifcant. 
 
 #%%[markdown]
 # #### Classification Report and Confusion Matrix of Logistic Regression Predicting Vape Use
