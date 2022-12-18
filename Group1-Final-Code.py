@@ -559,7 +559,7 @@ plt.title("Receiver Operating Characteristic - Logisitc Regression")
 plt.legend()
 plt.show()
 #%%[markdown]
-# The ROC curve ad AUC score help us to understand separability. More specifically, it tells use how much our model is capable of distinguishing between adolescents who do and do not vape. The ROC curve trends somewhat to the upper left corner which indicates a pretty good model. The AUC score is about 0.78 which is acceptable but it would be preferred to be closer to 0.8. Overall, the ROC curve and AUC score indicate that our logistic regression does a good job at discriminating between classes. 
+# The ROC curve and AUC score help us to understand separability. More specifically, it tells us how much our model is capable of distinguishing between adolescents who do and do not vape. The ROC curve trends somewhat to the upper left corner which indicates a pretty good model. The AUC score is about 0.78 which is acceptable but it would be preferred to be closer to 0.8. Overall, the ROC curve and AUC score indicate that our logistic regression does a good job at discriminating between classes.
 
 #%%[markdown]
 # #### Decision Tree Classifier of Vape Use
@@ -593,7 +593,7 @@ plt.title("Confusion Matrix")
 plt.show()
 
 #%%[markdown]
-# Similar to our logistic regression model classifying vape use, our decision tree predicted that out of all adolescents that the model predicted would use vape products, only about 79% actually do use vape products. Out of all the adolescents that actually do vape, the model only predicted this outcome correctly for 66% of those adolescents. Since the F1-Score is somewhat close to 1, we can assume that the model does an good job of predicting whether or not adolescents will use vape products. The overall accuracy of the model was 77% which is a good sign that the model is efficient at classifying between adolescents who vape and who do not vape.
+# Similar to our logistic regression model classifying vape use, our decision tree predicted that out of all adolescents that the model predicted would use vape products, only about 79% actually do use vape products. Out of all the adolescents that actually do vape, the model only predicted this outcome correctly for 66% of those adolescents. Since the F1-Score is somewhat close to 1, we can assume that the model does a good job of predicting whether or not adolescents will use vape products. The overall accuracy of the model was 77% which is a good sign that the model is efficient at classifying between adolescents who vape and those who do not vape.
 #%%[markdown]
 # #### ROC-AUC of Decision Tree Classifier Model
 ns_probs = [0 for _ in range(len(y_test))]
@@ -613,7 +613,7 @@ plt.title("Receiver Operating Characteristic - DecisionTree ")
 plt.legend()
 plt.show()
 #%%[markdown]
-# The ROC curve ad AUC score tells use how much our model is capable of distinguishing between adolescents who do and do not vape. Like the logistic regression model, the ROC curve trends somewhat to the upper left corner which indicates a pretty good model. The AUC score is about 0.78 which is acceptable but it would be preferred to be closer to 0.8. Overall, the ROC curve and AUC score indicate that our logistic regression does a good job at discriminating between classes of vaping and not vaping. 
+# The ROC curve and AUC score tells us how much our model is capable of distinguishing between adolescents who do and do not vape. Like the logistic regression model, the ROC curve trends somewhat to the upper left corner which indicates a pretty good model. The AUC score is about 0.78 which is acceptable but it would be preferred to be closer to 0.8. Overall, the ROC curve and AUC score indicate that our logistic regression does a good job at discriminating between classes of vaping and not vaping.
 #%%[markdown]
 # # Conclusion
 # We received statistically significant results from performing ANOVA and Chi-squared tests agains the relationships between our variables of interest.
