@@ -48,7 +48,7 @@ for p in g.ax.patches:
     
     g.ax.text(txt_x,txt_y,txt)
     
-
+plt.show()
 
 #--------------------------Grades BY Electronic_Devices-------------------------------#
 x, y ="Electronic_Devices", "Grades"
@@ -69,7 +69,7 @@ for p in g.ax.patches:
     
     g.ax.text(txt_x,txt_y,txt)
     
-
+plt.show()
 
 #--------------------------Grades BY marijuana_use-------------------------------#
 x, y ="marijuana_use", "Grades"
@@ -89,7 +89,7 @@ for p in g.ax.patches:
     txt_y=p.get_height()
     
     g.ax.text(txt_x,txt_y,txt)
-    
+plt.show()
 
 # #--------------------------Grades BY use of technical devices-------------------------------#
 #--------------------Synthetic Minority Oversampling Technique (SMOTE)---------------------#
