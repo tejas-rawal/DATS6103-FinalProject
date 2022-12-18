@@ -402,7 +402,7 @@ stat, p, dof, expected = chi2_contingency(contigency)
 alpha = 0.05
 print("The results of the chi-squared test of independence showed that the p value is " + str(p) + " which indicates a significant dependent relationship between race and grades.")
 #%%[markdown]
-#The contingency table between racial groups and their grades reveals that a majority individuals, regardless of race, report having mostly A's and B's for their grades. A majority of white individuals and individuals of other races have mostly A's while a majority of Black/African American and Hispanic/Latino students report having mostly B's. 
+#The contingency table between racial groups and their grades reveals that a majority of individuals, regardless of race, report having mostly A's and B's for their grades. A majority of white individuals and individuals of other races have mostly A's while a majority of Black/African American and Hispanic/Latino students report having mostly B's. 
 
 
 #%%[markdown]
@@ -448,7 +448,7 @@ ts = stats.ttest_ind(a=vape_yes["Television"], b=vape_no["Television"], equal_va
 print("Two-Sample T-test:",ts)
 
 #%%[markdown]
-# The plot shows the differences in hours of television watched per day by individuals who do and do not vape. Interestingly, between the housrs of 0.0 and 2.0 there are many more individuals who report not vaping. In comparison, between the hours of 3.0 and 5.0 it is apparent that a greater proportion of individuals report vaping. It is important to the pattern that the more hours of television watched in the day, the more the individuals report vaping in comparison to not vaping. These results may imply a relationship between number of hours of television per day and vaping habits considering that the gap between those who vape and those who do not vape becomes smaller and smaller with every extra hour of television watched per day. In addition, after running a two-sample t-test between those who and who do not vape, the results indicate that there is a significant different in the average number hours of television watch per day between groups (p<0.05).
+# The plot shows the differences in hours of television watched per day by individuals who do and do not vape. Interestingly, between the hours of 0.0 and 2.0 there are many more individuals who report not vaping. In comparison, between the hours of 3.0 and 5.0 it is apparent that a greater proportion of individuals report vaping. It is important to note the pattern that the more hours of television watched in the day, the more the individuals report vaping in comparison to not vaping. These results may imply a relationship between number of hours of television per day and vaping habits considering that the gap between those who vape and those who do not vape becomes smaller and smaller with every extra hour of television watched per day. In addition, after running a two-sample t-test between those who and those who do not vape, the results indicate that there is a significant difference in the average number of hours of television watch per day between groups (p<0.05).
 #%%[markdown]
 # #### Hours of Electronic Device Use per Day by Vape Use
 ax = sns.countplot(x="Electronic_Devices",hue="Vape_Use", data=data,palette='husl')
@@ -586,7 +586,7 @@ print(classification_report(y_true1, y_pred1))
 cm = confusion_matrix(y_test, y_pred)
 
 import seaborn as sns
-ax = sns.heatmap(cm, annot=True,fmt='g',cmap="Blues")
+ax = sns.heatmap(cm, annot=True,fmt='g')
 ax.set_xlabel('Actual Values')
 ax.set_ylabel('Predicted')
 ax.tick_params(length=0, labeltop=True, labelbottom=False)
