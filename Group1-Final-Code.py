@@ -78,7 +78,7 @@ raw_data.info()
 #The Dataset has 311 Columns and 217340 rows. We will Now Select the columns Required
 
 #%%
-data_subset = raw_data[['year','bmi','q34','q78','q79','q80','q89','race4','race7','sex' ]]
+data_subset = raw_data[['year','bmi','q34','q78','q79','q80','q89','qn45','race4','race7','sex','qn24',"stweight"]]
 data_subset.head()
 data= data_subset[data_subset['year']>=2009]
 #%%
@@ -169,6 +169,8 @@ data['q78'] = data['q78'].apply(np.int64)
 data['q79'] = data['q79'].apply(np.int64)
 data['q80'] = data['q80'].apply(np.int64)
 data['q89'] = data['q89'].apply(np.int64)
+data['qn45'] = data['qn45'].apply(np.int64)
+data['qn24'] = data['qn24'].apply(np.int64)
 data['race4'] = data['race4'].apply(np.int64)
 data['sex'] = data['sex'].apply(np.int64)
 data['bmi'] = data['bmi'].apply(np.float)
@@ -179,7 +181,7 @@ print(data.dtypes)
 
 #%%
 # Changing the column names
-data=data.rename(columns={"q34": "Vape_Use", "q78": "Physical_Activity", "q79": "Television", "q80": "Electronic_Devices", "q89": "Grades", "race4": "race", "stweight":"weight","qn45":"marijuana_use","qn24":"cyber_bullied"})
+data=data.rename(columns={"q34": "Vape_Use", "q78": "Physical_Activity", "q79": "Television", "q80": "Electronic_Devices", "q89": "Grades", "race4": "race", "stweight":"weight","qn45":"marijuana_use","qn24":"cyber_bullied", "stweight":"weight"})
 data=data.reset_index()
 data
 #%%
@@ -564,17 +566,20 @@ data.head()
 #%%
 data['bmi']=data['bmi'].round(decimals = 2)
 
+#%%
 data.loc[(data['bmi']) < 18.5, 'BMI_class'] = 'underweight'
 data.loc[(data['bmi'] <= 24.99 ) & (data['bmi'] >= 18.5), 'BMI_class'] = 'healthy'
 data.loc[(data['bmi'] <= 29.99 ) & (data['bmi'] >= 25), 'BMI_class'] = 'overweight'
 data.loc[(data['bmi']) >= 30, 'BMI_class'] = 'obese'
 
+#%%
 
 data.loc[data['Physical_Activity'] == 0, 'PA_Class'] = 'No Activity'
 data.loc[(data['Physical_Activity'] <= 2 ) & (data['Physical_Activity'] >= 1), 'PA_Class'] = 'Minimal'
 data.loc[(data['Physical_Activity'] <= 5 ) & (data['Physical_Activity'] >= 3), 'PA_Class'] = 'Moderate'
 data.loc[(data['Physical_Activity'] <= 7 ) & (data['Physical_Activity'] >= 6), 'PA_Class'] = 'High'
 
+#%%
 
 data["BMI_num"]=data["BMI_class"].replace(['overweight','healthy','underweight','obese'],[3,2,1,0])
 data["PA_num"]=data["PA_Class"].replace(['High','Minimal','Moderate','No Activity'],[3,2,1,0])
@@ -965,10 +970,13 @@ for p in g.ax.patches:
     g.ax.text(txt_x,txt_y,txt)
     
 plt.show()
+
+#%%
+data.head()
 #%%[markdown]
 #--------------------Synthetic Minority Oversampling Technique (SMOTE)---------------------#
 
-X=data.drop(columns=['index','year','bmi','Vape_Use','Physical_Activity','Grades','sex','weight','cyber_bullied'])
+X=data[['race','Electronic_Devices','Television','marijuana_use']]
 #dependent_variable
 y=data[['Grades']]
 
@@ -1281,3 +1289,5 @@ plt.show()
 # 
 # 
 # Overall, modeling adolescent social behaviors and outcomes is a complicated task. We could potentially include responses from other behavioral questions in the survey to improve the accuracy of our model, but that will require deeper analysis of each new variable we decide to use.
+
+#%%
