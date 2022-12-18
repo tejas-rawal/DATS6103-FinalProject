@@ -34,6 +34,8 @@ import numpy as np
 # plotting
 import seaborn as sns
 import matplotlib.pyplot as plt
+import pylab as pl
+ 
 
 # stats and models
 import statsmodels.api as sm
@@ -765,8 +767,7 @@ FN = cm[0,1]+cm[0,2]+cm[0,3]
 
 
 
-import seaborn as sns
-import matplotlib.pyplot as plt     
+   
 
 ax= plt.subplot()
 sns.heatmap(cm, annot=True, fmt='g', ax=ax);  #annot=True to annotate cells, ftm='g' to disable scientific notation
@@ -833,7 +834,7 @@ LR_Predict = LR_Model.predict(X_test)
 #Confusion Matrix
 
 #%%
-import pylab as pl
+
 
 cm = confusion_matrix(y_test, LR_Predict)
 
