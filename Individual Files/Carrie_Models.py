@@ -18,6 +18,7 @@ from statsmodels.formula.api import glm
 from statsmodels.formula.api import ols
 import scipy.stats as stats
 from sklearn.tree import DecisionTreeClassifier # Import Decision Tree Classifier
+from sklearn.metrics import accuracy_score
 
 
 #%%
@@ -124,6 +125,18 @@ print('Logit model accuracy (with the train set):',logit.score(x_train, y_train)
 y_pred = logit.predict(x_test)
 print(y_pred)
 
+#%%
+model1 = LogisticRegression(random_state=0, multi_class='ovr', penalty='none', solver='newton-cg').fit(x_train, y_train)
+print('Intercept: \n', model1.intercept_)
+print('Coefficients: \n', model1.coef_)
+#%%
+df=pd.DataFrame({'odds_ratio':(np.exp(logit.coef_).T).tolist(),'variable':xdata.columns.tolist()})
+df['odds_ratio'] = df['odds_ratio'].str.get(0)
+
+df=df.sort_values('odds_ratio', ascending=False)
+df
+
+np.exp(model1.coef_)
 #%%
 # Classification Report
 #
