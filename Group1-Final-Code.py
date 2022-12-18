@@ -466,8 +466,8 @@ print("Two-Sample T-test:",s)
 
 #%%[markdown]
 # #### Contingency Table of Marijuana and Vape Use and Chi-Squared Test of Independence
-data["marijuana_use"]=data["marijuana_use"].replace([1,0],["Yes","No"])
-data["Vape_Use"]=data["Vape_Use"].replace([0,1],["No","Yes"])
+data["marijuana_use"]=data["marijuana_use"].replace([1,2],["Yes","No"])
+data["Vape_Use"]=data["Vape_Use"].replace([2,1],["No","Yes"])
 #creating a contingency table for race and grades
 contigency1 = pd.crosstab(index=data['marijuana_use'], columns=data['Vape_Use'], margins=True, margins_name="Total")
 plt.figure(figsize=(9,4))
@@ -488,14 +488,8 @@ print("The results of the chi-squared test of independence showed that the p val
 data["race"]=data["race"].replace(["White","Black or African American","Hispanic/Latino","All Other Races"],[0,1,2,3])
 data["Vape_Use"]=data["Vape_Use"].replace(["No","Yes"],[0,1])
 data["marijuana_use"]=data["marijuana_use"].replace(["No","Yes"],[0,1])
+print(data["marijuana_use"])
 
-#%%
-#recoding race from numeric to categorical
-#data["race"]=data["race"].replace(["White","Black or African American","Hispanic/Latino","All Other Races"],[0,1,2,3])
-# recording vape use to numeric
-#data["Vape_Use"]=data["Vape_Use"].replace(["No","Yes"],[0,1])
-# recoding marijuana use to numeric
-data["marijuana_use"]=data["marijuana_use"].replace([1,2],[1,0])
 #%%
 #splitting data for logit regression
 xdata = data[["Television","Electronic_Devices",'marijuana_use',"race"]]
