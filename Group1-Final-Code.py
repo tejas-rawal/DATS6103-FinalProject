@@ -30,26 +30,20 @@
 # package imports
 import pandas as pd
 import numpy as np
-from scipy.stats import chi2_contingency
-import seaborn as sns
-import matplotlib.pyplot as plt
-import sklearn
-from sklearn import linear_model
-from sklearn.linear_model import LogisticRegression
-import statsmodels.api as sm
-from statsmodels.formula.api import mnlogit
-from statsmodels.formula.api import glm
-from statsmodels.formula.api import ols
-import scipy.stats as stats
-from sklearn.tree import DecisionTreeClassifier # Import Decision Tree Classifier
-
-
-# one-way ANOVA
-from scipy.stats import f_oneway
 
 # plotting
 import seaborn as sns
 import matplotlib.pyplot as plt
+
+# stats and models
+import statsmodels.api as sm
+from statsmodels.formula.api import glm
+import scipy.stats as stats
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix,\
+    roc_auc_score, roc_curve
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier # Import Decision Tree Classifier
 
 #%%
 # The cleaned datasets can be found here: https://github.com/tejas-rawal/DATS6103-FinalProject/tree/main/Datasets
@@ -72,6 +66,7 @@ print(data.head())
 # response labels
 tv_answers = ['0', '< 1', '1', '2', '3', '4', '>= 5']
 phys_answers = ['0', '1', '2', '3' , '4', '5', '6', '7']
+electronics_answers = ['0', '< 1', '1', '2', '3', '4', '>=5']
 race_groups = ['White', 'Black or African American', 'Hispanic/Latino', 'All Other Races']
 sex = ['Female', 'Male']
 grades = ["Mostly A's","Mostly B's","Mostly C's","Mostly D's","Mostly F's","None of these grades","Not sure"]
@@ -112,6 +107,7 @@ plt.show()
 
 # Electronic device use
 sns.countplot(y=data.Electronic_Devices, color='#3E8989')
+plt.yticks(list(range(len(electronics_answers))), electronics_answers)
 plt.xlabel('Count')
 plt.ylabel('Hours of electronic device use')
 plt.title('Counts for hours of electronic device usage')
@@ -194,11 +190,10 @@ samples_by_tv = [
         for answer in unique_by_tv
 ]
 
-
 print("Number of samples: ", len(samples_by_tv))
 print("Size of each sample: ", [len(sample) for sample in samples_by_tv])
 
-tv_anova_result = f_oneway(*samples_by_tv)
+tv_anova_result = stats.f_oneway(*samples_by_tv)
 print("TV ANOVA result:\n", tv_anova_result)
 
 #%%[markdown]
@@ -214,6 +209,7 @@ sns.violinplot(y=data.bmi, x=data.Electronic_Devices, alpha=0.6, palette='husl')
 plt.title('BMI by hours of electronic device use')
 plt.xlabel('Device usage (# of hours)')
 plt.ylabel('BMI (kg/in²)')
+plt.xticks(list(range(len(electronics_answers))), electronics_answers)
 plt.show()
 
 # boxplot of BMI vs hours of TV
@@ -221,6 +217,7 @@ sns.boxplot(y=data.bmi, x=data.Electronic_Devices, palette='husl')
 plt.title('BMI by hours of electronic device use')
 plt.xlabel('Device usage (# of hours)')
 plt.ylabel('BMI (kg/in²)')
+plt.xticks(list(range(len(electronics_answers))), electronics_answers)
 plt.show()
 
 #%%[markdown]
@@ -241,7 +238,7 @@ samples_by_device = [
 print("Number of samples: ", len(samples_by_device))
 print("Size of each sample: ", [len(sample) for sample in samples_by_device])
 
-device_anova_result = f_oneway(*samples_by_device)
+device_anova_result = stats.f_oneway(*samples_by_device)
 print("Electronic device ANOVA result:\n", device_anova_result)
 
 #%%[markdown]
@@ -285,7 +282,7 @@ samples_by_phys = [
 print("Number of samples: ", len(samples_by_phys))
 print("Size of each sample: ", [len(sample) for sample in samples_by_phys])
 
-phy_anova_result = f_oneway(*samples_by_phys)
+phy_anova_result = stats.f_oneway(*samples_by_phys)
 print("Physical activity ANOVA result:\n", phy_anova_result)
 
 #%%[markdown]
@@ -329,7 +326,7 @@ samples_by_race = [
 print("Number of samples: ", len(samples_by_race))
 print("Size of each sample: ", [len(sample) for sample in samples_by_race])
 
-race_anova_result = f_oneway(*samples_by_race)
+race_anova_result = stats.f_oneway(*samples_by_race)
 print("Race ANOVA result:\n", race_anova_result)
 
 #%%[markdown]
@@ -372,7 +369,7 @@ samples_by_sex = [
 print("Number of samples: ", len(samples_by_sex))
 print("Size of each sample: ", [len(sample) for sample in samples_by_sex])
 
-sex_anova_result = f_oneway(*samples_by_sex)
+sex_anova_result = stats.f_oneway(*samples_by_sex)
 print("Sex ANOVA result:\n", sex_anova_result)
 
 #%%[markdown]
@@ -397,7 +394,7 @@ sns.heatmap(contigency, annot=True, cmap="Blues", vmin= 40, vmax=36000,fmt='g')
 plt.title("Contingency Table of Race and Grades")
 plt.ylabel("Race")
 #chi-squared test of independence
-stat, p, dof, expected = chi2_contingency(contigency)
+stat, p, dof, expected = stats.chi2_contingency(contigency)
 #checking the significance
 alpha = 0.05
 print("The results of the chi-squared test of independence showed that the p value is " + str(p) + " which indicates a significant dependent relationship between race and grades.")
@@ -476,8 +473,7 @@ plt.title("Contingency Table of Marijuana Use and Vape Use")
 plt.xlabel('Vape Use')
 plt.ylabel('Marijuana Use')
 
-
-stat, p, dof, expected = chi2_contingency(contigency1)
+stat, p, dof, expected = stats.chi2_contingency(contigency1)
 #checking the significance
 alpha = 0.05
 print("The results of the chi-squared test of independence showed that the p value is " + str(p) + " which indicates a significant dependent relationship between marijuana use and e-cig use.")
@@ -509,10 +505,7 @@ model = glm(formula="Vape_Use ~ Television + Electronic_Devices + C(marijuana_us
 model = model.fit()
 print(model.summary())
 
-
-from sklearn.model_selection import train_test_split
 x_train, x_test, y_train, y_test = train_test_split(xdata, ydata, test_size=0.3, random_state=1)
-from sklearn.linear_model import LogisticRegression
 
 logit = LogisticRegression()  # instantiate
 logit.fit(x_train, y_train)
@@ -526,12 +519,10 @@ y_pred = logit.predict(x_test)
 
 #%%[markdown]
 # #### Classification Report and Confusion Matrix of Logistic Regression Predicting Vape Use
-from sklearn.metrics import classification_report
 y_true, y_pred = y_test, logit.predict(x_test)
 print("Classification Report:",end='\n')
 print(classification_report(y_true, y_pred))
 
-from sklearn.metrics import confusion_matrix
 c = confusion_matrix(y_test,y_pred)
 print("Confusion Matrix:",end='\n')
 ax = sns.heatmap(c, annot=True,fmt='g')
@@ -547,8 +538,6 @@ plt.title("Confusion Matrix")
 # According to the classification report of our logistic regression model, out of all adolescents that the model predicted would use vape products, only about 79% actually do use vape products. Out of all the adolescents that actually do vape, the model only predicted this outcome correctly for 66% of those adolescents. Since the F1-Score is somewhat close to 1, we can assume that the model does an good job of predicting whether or not adolescents will use vape products. The overall accuracy of the model was 77% which is a good sign that the model is efficient at classifying between adolescents who vape and who do not vape.
 #%%[markdown]
 # #### ROC-AUC of Logistic Regression Model
-from sklearn.metrics import roc_auc_score, roc_curve
-
 ns_probs = [0 for _ in range(len(y_test))]
 lr_probs = logit.predict_proba(x_test)
 lr_probs = lr_probs[:, 1]
@@ -575,9 +564,7 @@ clf = DecisionTreeClassifier(class_weight='balanced',max_depth=3)
 #creating prediction function to test test data  with model 
 y_pred1 = clf.fit(x_train1, y_train1).predict(x_test1)
 
-from sklearn.metrics import accuracy_score
 print("Accuracy of Decision Tree Classifier is:", accuracy_score(y_test1, y_pred1))
-
 
 y_true1, y_pred1 = y_test1, clf.predict(x_test1)
 print("Classification Report:",end='\n')
@@ -585,7 +572,6 @@ print(classification_report(y_true1, y_pred1))
 
 cm = confusion_matrix(y_test, y_pred)
 
-import seaborn as sns
 ax = sns.heatmap(cm, annot=True,fmt='g')
 ax.set_xlabel('Actual Values')
 ax.set_ylabel('Predicted')
