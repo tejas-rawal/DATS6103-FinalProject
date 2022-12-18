@@ -482,13 +482,12 @@ stat, p, dof, expected = chi2_contingency(contigency1)
 alpha = 0.05
 print("The results of the chi-squared test of independence showed that the p value is " + str(p) + " which indicates a significant dependent relationship between marijuana use and e-cig use.")
 #%%[markdown]
-#The contingency table between marijuana and vape usage for shows that about half of the sample neither vape or smoke marijuana (~46%) while about 30% of the sample did report vaping and smoking marijuana. A very small percentage of the sample either smoke marijuana or vape but do not engage in both. In addition, our chi-squared test of independence indicaed a significant dependent relationship between marijuana and vape use. 
+#The contingency table between marijuana and vape usage shows that about half of the sample neither vape or smoke marijuana (~46%) while about 30% of the sample did report vaping and smoking marijuana. A very small percentage of the sample either smoke marijuana or vape but do not engage in both. In addition, our chi-squared test of independence indicated a significant dependent relationship between marijuana and vape use.
 #%%
 #recoding race from numeric to categorical
 data["race"]=data["race"].replace(["White","Black or African American","Hispanic/Latino","All Other Races"],[0,1,2,3])
 data["Vape_Use"]=data["Vape_Use"].replace(["No","Yes"],[0,1])
 data["marijuana_use"]=data["marijuana_use"].replace(["No","Yes"],[0,1])
-print(data["marijuana_use"])
 
 #%%
 #splitting data for logit regression
@@ -538,7 +537,7 @@ plt.tight_layout()
 plt.title("Confusion Matrix")
 
 #%%[markdown]
-# According to the classification report of our logistic regression model, out of all adolescents that the model predicted would use vape products, only about 79% actually do use vape products. Out of all the adolescents that actually do vape, the model only predicted this outcome correctly for 66% of those adolescents. Since the F1-Score is somewhat close to 1, we can assume that the model does an good job of predicting whether or not adolescents will use vape products. The overall accuracy of the model was 77% which is a good sign that the model is efficient at classifying between adolescents who vape and who do not vape.
+# According to the classification report of our logistic regression model, out of all adolescents that the model predicted would use vape products, only about 79% actually do use vape products (precision). Out of all the adolescents that actually do vape, the model only predicted this outcome correctly for 66% of those adolescents (recall). Since the F1-Score is somewhat close to 1, we can assume that the model does a good job of predicting whether or not adolescents will use vape products. The overall accuracy of the model was 77% which is a good sign that the model is efficient at classifying between adolescents who vape and those who do not vape.
 #%%[markdown]
 # #### ROC-AUC of Logistic Regression Model
 from sklearn.metrics import roc_auc_score, roc_curve
