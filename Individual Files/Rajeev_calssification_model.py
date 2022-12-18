@@ -48,7 +48,7 @@ for p in g.ax.patches:
     
     g.ax.text(txt_x,txt_y,txt)
     
-g.savefig("%s/Grades_BY_Television.png"%input_path)
+
 
 #--------------------------Grades BY Electronic_Devices-------------------------------#
 x, y ="Electronic_Devices", "Grades"
@@ -69,7 +69,7 @@ for p in g.ax.patches:
     
     g.ax.text(txt_x,txt_y,txt)
     
-g.savefig("%s/Grades_BY_Electronic_Devices.png"%input_path)
+
 
 #--------------------------Grades BY marijuana_use-------------------------------#
 x, y ="marijuana_use", "Grades"
@@ -90,7 +90,6 @@ for p in g.ax.patches:
     
     g.ax.text(txt_x,txt_y,txt)
     
-g.savefig("%s/Grades_BY_marijuana_use.png"%input_path)
 
 # #--------------------------Grades BY use of technical devices-------------------------------#
 #--------------------Synthetic Minority Oversampling Technique (SMOTE)---------------------#
@@ -132,6 +131,7 @@ plt.title('Important Feature')
 plt.savefig('feature.png')
 # print(feature_importance)
 
+#Electronic Devices,Television, Marijuana Use,Race – Decision Tree Classifier
 #MAke a list of all feature
 
 feature_importance_list=feature_importance['feature'].to_list()
