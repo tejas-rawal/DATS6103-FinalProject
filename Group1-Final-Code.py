@@ -462,7 +462,7 @@ s = stats.ttest_ind(a=vape_yes["Electronic_Devices"], b=vape_no["Electronic_Devi
 print("Two-Sample T-test:",s)
 
 #%%[markdown]
-# The plot shows mixed results with the two ends of the hour distribution having the smallest differences between those who do and do not report vaping.The largest difference between groups clusters at 2.0 hours. Overall, there is no definite trend in this graph depicting differences in time spent on electronic devices per day between vaping and non-vaping individuals. This conclusion is furter supported by the insignicant (p>0.05) t-test which indicates that there is no significant difference in the average number of hours spent on electronic devices between the vaping and non-vaping groups. 
+# The plot shows mixed results with the two ends of the hour distribution having the smallest differences between those who do and do not report vaping.The largest difference between groups clusters at 2.0 hours. Overall, there is no definite trend in this graph depicting differences in time spent on electronic devices per day between vaping and non-vaping individuals. This conclusion is further supported by the insignificant (p>0.05) t-test which indicates that there is no significant difference in the average number of hours spent on electronic devices between the vaping and non-vaping groups.
 
 #%%[markdown]
 # #### Contingency Table of Marijuana and Vape Use and Chi-Squared Test of Independence
