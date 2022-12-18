@@ -1,11 +1,7 @@
 #-----------------------------------IMPORT LIBTATIES--------------------------------#
-import matplotlib.pyplot as plt
-
-# Core libraries
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as pyplot
-
+import matplotlib.pyplot as plt
 # Sklearn processing
 from sklearn.preprocessing import MinMaxScaler
 
@@ -18,7 +14,7 @@ from sklearn.metrics import confusion_matrix
 
 plt.rc("font", size=14)
 from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import train_test_split,GridSearchCV
+from sklearn.model_selection import train_test_split
 import seaborn as sns
 sns.set(style="white")
 sns.set(style="whitegrid", color_codes=True)
@@ -43,6 +39,7 @@ df1=df1.rename('percent').reset_index()
 g=sns.catplot(x=x, y='percent', hue=y, kind="bar", data=df1)
 g.ax.set_ylim(0,100)
 g.fig.set_size_inches(20,10)
+plt.title('Effect of Television on Adolescent Grades')
 
 for p in g.ax.patches:
     txt=str(p.get_height().round(1))+"%"
@@ -63,6 +60,7 @@ df1=df1.rename('percent').reset_index()
 g=sns.catplot(x=x, y='percent', hue=y, kind="bar", data=df1)
 g.ax.set_ylim(0,100)
 g.fig.set_size_inches(20,10)
+plt.title('Effect of Electronic Devices on Adolescent Grades')
 
 for p in g.ax.patches:
     txt=str(p.get_height().round(1))+"%"
@@ -83,6 +81,7 @@ df1=df1.rename('percent').reset_index()
 g=sns.catplot(x=x, y='percent', hue=y, kind="bar", data=df1)
 g.ax.set_ylim(0,100)
 g.fig.set_size_inches(20,10)
+plt.title('Effect of marijuana_use on Adolescent Grades')
 
 for p in g.ax.patches:
     txt=str(p.get_height().round(1))+"%"
@@ -96,7 +95,7 @@ g.savefig("%s/Grades_BY_marijuana_use.png"%input_path)
 # #--------------------------Grades BY use of technical devices-------------------------------#
 #--------------------Synthetic Minority Oversampling Technique (SMOTE)---------------------#
 
-X=df.drop(columns=['index','year','bmi','Vape_Use','Physical_Activity','Grades','race','sex','weight','cyber_bullied'])
+X=df.drop(columns=['index','year','bmi','Vape_Use','Physical_Activity','Grades','sex','weight','cyber_bullied'])
 #dependent_variable
 y=df[['Grades']]
 
@@ -107,16 +106,6 @@ columns=X_train.columns
 smote_data_X, smote_data_y=os.fit_resample(X_train, y_train)
 smote_data_X=pd.DataFrame(data=smote_data_X, columns=columns)
 smote_data_y=pd.DataFrame(data=smote_data_y, columns=['Grades'])
-
-
-#--Compare the class counts in the original dataset and SMOTE dataset
-'''
-print('% of each class in the oroginal dataset : ')
-print(df.Grades.value_counts()/len(df))
-
-print('% of each class in the SMOTE sample dataset : ')
-print(smote_data_y.Grades.value_counts()/len(df))
-'''
 
 '''
 Now, as not all the feature will be contributing towards the prediction, 
@@ -162,3 +151,12 @@ print("DecisionTreeClassifier", accuracy_score(y_train, predictions_dt))
 
 predictions_dt = model_dt.predict(X_test)
 print("DecisionTreeClassifier TEST: ", accuracy_score(y_test, predictions_dt))
+
+#Confusion Matrix
+conf_matrix =confusion_matrix(y_test, predictions_dt)
+ax= plt.subplot()
+sns.heatmap(conf_matrix, annot=True, fmt='g', ax=ax);
+ax.set_xlabel('Predicted labels');ax.set_ylabel('True labels'); 
+ax.set_title('Confusion Matrix'); 
+ax.xaxis.set_ticklabels(["A","B","C","D","F","NG","NS"]); 
+ax.yaxis.set_ticklabels(["A","B","C","D","F","NG","NS"]);
