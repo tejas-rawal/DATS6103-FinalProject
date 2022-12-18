@@ -613,7 +613,7 @@ plt.title("Receiver Operating Characteristic - DecisionTree ")
 plt.legend()
 plt.show()
 #%%[markdown]
-# The ROC curve and AUC score tells us how much our model is capable of distinguishing between adolescents who do and do not vape. Like the logistic regression model, the ROC curve trends somewhat to the upper left corner which indicates a pretty good model. The AUC score is about 0.78 which is acceptable but it would be preferred to be closer to 0.8. Overall, the ROC curve and AUC score indicate that our logistic regression does a good job at discriminating between classes of vaping and not vaping.
+# The ROC curve and AUC score tells us how much our model is capable of distinguishing between adolescents who do and do not vape. Like the logistic regression model, the ROC curve trends somewhat to the upper left corner which indicates a pretty good model. The AUC score is about 0.78 which is acceptable but it would be preferred to be closer to 0.8. Overall, the ROC curve and AUC score indicate that our decision tree does a good job at discriminating between classes of vaping and not vaping.
 #%%[markdown]
 # # Conclusion
 # We received statistically significant results from performing ANOVA and Chi-squared tests agains the relationships between our variables of interest.
