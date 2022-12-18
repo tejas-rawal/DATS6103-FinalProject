@@ -807,8 +807,8 @@ print( modellogitfit.summary() )
 #%%
 print(f'The model\'s pseudo r-squared value is {modellogitfit.prsquared.__round__(4)}')
 
-# Model 1
-# Target Variable : Physical Activity
+# Model 2
+# Target Variable : BMI
 #
 # Feautre Variables : Television Usage, Electronic Device Usage, Marijuana Usage
 
