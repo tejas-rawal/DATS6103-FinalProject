@@ -920,6 +920,7 @@ for p in g.ax.patches:
     
     g.ax.text(txt_x,txt_y,txt)
     
+plt.show()    
 #%%[markdown]
 
 #--------------------------Grades BY Electronic_Devices-------------------------------#
@@ -941,7 +942,7 @@ for p in g.ax.patches:
     
     g.ax.text(txt_x,txt_y,txt)
     
-
+plt.show()
 #%%[markdown]
 #--------------------------Grades BY marijuana_use-------------------------------#
 x, y ="marijuana_use", "Grades"
@@ -962,7 +963,7 @@ for p in g.ax.patches:
     
     g.ax.text(txt_x,txt_y,txt)
     
-
+plt.show()
 #%%[markdown]
 #--------------------Synthetic Minority Oversampling Technique (SMOTE)---------------------#
 
