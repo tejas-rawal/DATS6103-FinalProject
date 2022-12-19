@@ -30,12 +30,15 @@
 # package imports
 import pandas as pd
 import numpy as np
+import math
 
 # plotting
 import seaborn as sns
 import matplotlib.pyplot as plt
 import pylab as pl
- 
+import missingno as msno
+
+sns.set(style="whitegrid", color_codes=True)
 
 # stats and models
 import statsmodels.api as sm
@@ -45,19 +48,15 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix,\
     roc_auc_score, roc_curve
 from sklearn.linear_model import LogisticRegression
-from sklearn.tree import DecisionTreeClassifier # Import Decision Tree Classifier
+from sklearn.tree import DecisionTreeClassifier
 import researchpy as rp
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score 
-from sklearn.model_selection import train_test_split
 from statsmodels.formula.api import mnlogit 
-from sklearn.metrics import confusion_matrix
-sns.set(style="white")
-sns.set(style="whitegrid", color_codes=True)
 from imblearn.over_sampling import SMOTE
-import math
-# Reading the Survey Data and Analysing the Dataset
+
+
 #%%
+# Reading the Survey Data and Analysing the Dataset
+
 raw_data = pd.read_csv('Datasets/data.csv')
 
 
@@ -195,11 +194,7 @@ data.head()
 data["Physical_Activity"]=data["Physical_Activity"].replace([1,2,3,4,5,6,7,8],[0,1,2,3,4,5,6,7])
 data.head()
 #%%
-import missingno as msno
 msno.bar(data)
-
-
-
 
 #%%
 
@@ -751,7 +746,6 @@ LR_Predict = LR_Model.predict(X_test)
 #Confusion Matrix
 
 #%%
-import pylab as pl
 
 cm = confusion_matrix(y_test, LR_Predict)
 
@@ -857,11 +851,6 @@ TN = cm[1,1]+cm[1,2]+cm[1,3]+cm[2,1]+cm[2,2]+cm[2,3]+cm[3,1]+cm[3,2]+cm[3,3]
 FP = cm[1,0]+cm[2,0]+cm[3,0]
 FN = cm[0,1]+cm[0,2]+cm[0,3]
 
-
-
-
-import seaborn as sns
-import matplotlib.pyplot as plt     
 
 ax= plt.subplot()
 sns.heatmap(cm, annot=True, fmt='g', ax=ax);  #annot=True to annotate cells, ftm='g' to disable scientific notation
