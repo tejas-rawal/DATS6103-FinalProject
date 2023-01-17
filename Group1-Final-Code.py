@@ -30,31 +30,177 @@
 # package imports
 import pandas as pd
 import numpy as np
-from scipy.stats import chi2_contingency
-import seaborn as sns
-import matplotlib.pyplot as plt
-import sklearn
-from sklearn import linear_model
-from sklearn.linear_model import LogisticRegression
-import statsmodels.api as sm
-from statsmodels.formula.api import mnlogit
-from statsmodels.formula.api import glm
-from statsmodels.formula.api import ols
-import scipy.stats as stats
-from sklearn.tree import DecisionTreeClassifier # Import Decision Tree Classifier
-
-
-# one-way ANOVA
-from scipy.stats import f_oneway
+import math
 
 # plotting
 import seaborn as sns
 import matplotlib.pyplot as plt
+import pylab as pl
+import missingno as msno
+
+sns.set(style="whitegrid", color_codes=True)
+
+# stats and models
+import statsmodels.api as sm
+from statsmodels.formula.api import glm
+import scipy.stats as stats
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix,\
+    roc_auc_score, roc_curve
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+import researchpy as rp
+from statsmodels.formula.api import mnlogit 
+from imblearn.over_sampling import SMOTE
+
 
 #%%
+# Reading the Survey Data and Analysing the Dataset
+
+raw_data = pd.read_csv('Datasets/data.csv')
+
+
+#Sanity Checking of the Dataset
+#%%
+raw_data.head()
+
+
+#%%
+raw_data.columns
+
+# As We See From Above There are multiple columns in the survey 
+# Data we will select only the required columns required for our analysis
+
+#%%
+raw_data.info()
+
+#The Dataset has 311 Columns and 217340 rows. We will Now Select the columns Required
+
+#%%
+data_subset = raw_data[['year','bmi','q34','q78','q79','q80','q89','qn45','race4','race7','sex','qn24',"stweight"]]
+data_subset.head()
+data= data_subset[data_subset['year']>=2009]
+#%%
+data.head()
+#%%
+data.tail()
+#%%
+data.info()
+
+# We will now check for the missing values in the dataset.
+#%%
+data = data.replace(' ', float('NaN'), regex = True)  # Replace blanks by NaN
+
+# Lets Plot the Missing Values
+#%%
+missing_df = data.isnull().sum(axis=0).reset_index()
+missing_df.columns = ['column_name','missing_count']
+missing_df = missing_df.loc[missing_df['missing_count']>0]
+missing_df = missing_df.sort_values(by='missing_count')
+
+#%%
+ind = np.arange(missing_df.shape[0])
+width = 0.5
+fig,ax = plt.subplots(figsize=(6,10))
+rects = ax.barh(ind,missing_df.missing_count.values,color='red')
+ax.set_yticks(ind)
+ax.set_yticklabels(missing_df.column_name.values, rotation='horizontal')
+ax.ticklabel_format(useOffset=False, style='plain', axis='x')
+ax.set_xlabel("Count of missing values")
+ax.set_title("Number of missing values in each column")
+plt.show()
+#%%
+data.isnull().sum()
+
+#%%
+def missing_values_table(df):
+        # Total missing values
+        mis_val = df.isnull().sum()
+        
+        # Percentage of missing values
+        mis_val_percent = 100 * df.isnull().sum() / len(df)
+        
+        # Make a table with the results
+        mis_val_table = pd.concat([mis_val, mis_val_percent], axis=1)
+        
+        # Rename the columns
+        mis_val_table_ren_columns = mis_val_table.rename(
+        columns = {0 : 'Missing Values', 1 : '% of Total Values'})
+        
+        # Sort the table by percentage of missing descending
+        mis_val_table_ren_columns = mis_val_table_ren_columns[
+            mis_val_table_ren_columns.iloc[:,1] != 0].sort_values(
+        '% of Total Values', ascending=False).round(1)
+        
+        # Print some summary information
+        print ("Your selected dataframe has " + str(df.shape[1]) + " columns.\n"      
+            "There are " + str(mis_val_table_ren_columns.shape[0]) +
+              " columns that have missing values.")
+        
+        # Return the dataframe with missing information
+        return mis_val_table_ren_columns
+
+
+city_day_missing= missing_values_table(data)
+city_day_missing
+
+
+#%%
+import missingno as msno #install missingno using pip install missingno
+msno.bar(data)
+
+
+#%%
+#Droping the NA values and race7 column
+data = data.drop('race7', axis=1)
+data.dropna(axis=0,inplace=True)
+data.head()
+
+
+#%%
+# Converting the strings to integers
+# displaying the datatypes
+print(data.dtypes)
+  
+# converting 'Field_2' and 'Field_3' from float to int
+data['q34'] = data['q34'].apply(np.int64)
+data['q78'] = data['q78'].apply(np.int64)
+data['q79'] = data['q79'].apply(np.int64)
+data['q80'] = data['q80'].apply(np.int64)
+data['q89'] = data['q89'].apply(np.int64)
+data['qn45'] = data['qn45'].apply(np.int64)
+data['qn24'] = data['qn24'].apply(np.int64)
+data['race4'] = data['race4'].apply(np.int64)
+data['sex'] = data['sex'].apply(np.int64)
+data['bmi'] = data['bmi'].apply(np.float)
+
+# displaying the datatypes
+print(data.dtypes)
+
+
+#%%
+# Changing the column names
+data=data.rename(columns={"q34": "Vape_Use", "q78": "Physical_Activity", "q79": "Television", "q80": "Electronic_Devices", "q89": "Grades", "race4": "race", "stweight":"weight","qn45":"marijuana_use","qn24":"cyber_bullied", "stweight":"weight"})
+data=data.reset_index()
+data
+#%%
+#recoding television from factors to numeric
+data["Television"]=data["Television"].replace([1,2,3,4,5,6,7],[0,0.5,1,2,3,4,5])
+data.head()
+#recoding electronic devices from factors to numeric
+data["Electronic_Devices"]=data["Electronic_Devices"].replace([1,2,3,4,5,6,7],[0,0.5,1,2,3,4,5])
+data.head()
+#recoding physical activity from factors to numeric
+data["Physical_Activity"]=data["Physical_Activity"].replace([1,2,3,4,5,6,7,8],[0,1,2,3,4,5,6,7])
+data.head()
+#%%
+msno.bar(data)
+
+#%%
+
 # The cleaned datasets can be found here: https://github.com/tejas-rawal/DATS6103-FinalProject/tree/main/Datasets
 # load the data
-data = pd.read_csv('Datasets/cleaned_data5.csv')
+
 # analyze structure
 print(f"Shape (rows, columns): {data.shape}")
 print("\n\n")
@@ -72,6 +218,7 @@ print(data.head())
 # response labels
 tv_answers = ['0', '< 1', '1', '2', '3', '4', '>= 5']
 phys_answers = ['0', '1', '2', '3' , '4', '5', '6', '7']
+electronics_answers = ['0', '< 1', '1', '2', '3', '4', '>=5']
 race_groups = ['White', 'Black or African American', 'Hispanic/Latino', 'All Other Races']
 sex = ['Female', 'Male']
 grades = ["Mostly A's","Mostly B's","Mostly C's","Mostly D's","Mostly F's","None of these grades","Not sure"]
@@ -112,6 +259,7 @@ plt.show()
 
 # Electronic device use
 sns.countplot(y=data.Electronic_Devices, color='#3E8989')
+plt.yticks(list(range(len(electronics_answers))), electronics_answers)
 plt.xlabel('Count')
 plt.ylabel('Hours of electronic device use')
 plt.title('Counts for hours of electronic device usage')
@@ -194,11 +342,10 @@ samples_by_tv = [
         for answer in unique_by_tv
 ]
 
-
 print("Number of samples: ", len(samples_by_tv))
 print("Size of each sample: ", [len(sample) for sample in samples_by_tv])
 
-tv_anova_result = f_oneway(*samples_by_tv)
+tv_anova_result = stats.f_oneway(*samples_by_tv)
 print("TV ANOVA result:\n", tv_anova_result)
 
 #%%[markdown]
@@ -214,6 +361,7 @@ sns.violinplot(y=data.bmi, x=data.Electronic_Devices, alpha=0.6, palette='husl')
 plt.title('BMI by hours of electronic device use')
 plt.xlabel('Device usage (# of hours)')
 plt.ylabel('BMI (kg/in²)')
+plt.xticks(list(range(len(electronics_answers))), electronics_answers)
 plt.show()
 
 # boxplot of BMI vs hours of TV
@@ -221,6 +369,7 @@ sns.boxplot(y=data.bmi, x=data.Electronic_Devices, palette='husl')
 plt.title('BMI by hours of electronic device use')
 plt.xlabel('Device usage (# of hours)')
 plt.ylabel('BMI (kg/in²)')
+plt.xticks(list(range(len(electronics_answers))), electronics_answers)
 plt.show()
 
 #%%[markdown]
@@ -241,7 +390,7 @@ samples_by_device = [
 print("Number of samples: ", len(samples_by_device))
 print("Size of each sample: ", [len(sample) for sample in samples_by_device])
 
-device_anova_result = f_oneway(*samples_by_device)
+device_anova_result = stats.f_oneway(*samples_by_device)
 print("Electronic device ANOVA result:\n", device_anova_result)
 
 #%%[markdown]
@@ -285,7 +434,7 @@ samples_by_phys = [
 print("Number of samples: ", len(samples_by_phys))
 print("Size of each sample: ", [len(sample) for sample in samples_by_phys])
 
-phy_anova_result = f_oneway(*samples_by_phys)
+phy_anova_result = stats.f_oneway(*samples_by_phys)
 print("Physical activity ANOVA result:\n", phy_anova_result)
 
 #%%[markdown]
@@ -329,7 +478,7 @@ samples_by_race = [
 print("Number of samples: ", len(samples_by_race))
 print("Size of each sample: ", [len(sample) for sample in samples_by_race])
 
-race_anova_result = f_oneway(*samples_by_race)
+race_anova_result = stats.f_oneway(*samples_by_race)
 print("Race ANOVA result:\n", race_anova_result)
 
 #%%[markdown]
@@ -372,7 +521,7 @@ samples_by_sex = [
 print("Number of samples: ", len(samples_by_sex))
 print("Size of each sample: ", [len(sample) for sample in samples_by_sex])
 
-sex_anova_result = f_oneway(*samples_by_sex)
+sex_anova_result = stats.f_oneway(*samples_by_sex)
 print("Sex ANOVA result:\n", sex_anova_result)
 
 #%%[markdown]
@@ -380,9 +529,511 @@ print("Sex ANOVA result:\n", sex_anova_result)
 
 #%%[markdown]
 # # Effect of behaviors on physical outcomes (Shreyas)
+# We Will Now Plot the Graphs to see
+# how adolescents behaviours are affecting Physical outcomes
 
 #%%[markdown]
-# # Effect of behaviors and race on academic outcomes (Rajeev)
+# For better visulaization we will 
+# add random values to the Television and Electronic Device Usage
+
+#%%
+data['value1'] = np.round(np.random.uniform(0.0, 0.4, size=(len(data), 1)), 2)
+data['value2'] = np.round(np.random.uniform(0.0, 0.9, size=(len(data), 1)), 2)
+data['value3'] = np.round(np.random.uniform(0.0, 0.4, size=(len(data), 1)), 2)
+data['value4'] = np.round(np.random.uniform(0.0, 0.9, size=(len(data), 1)), 2)
+
+data.loc[data['Television'] < 0.5, 'RESULT1'] = 0
+data.loc[data['Television'] == 0.5, 'RESULT1'] = data['Television']+data['value1']
+data.loc[data['Television'] >= 1, 'RESULT1'] = data['Television']+data['value2']
+data.loc[data['Electronic_Devices'] < 0.5, 'RESULT2'] = 0
+data.loc[data['Electronic_Devices'] == 0.5, 'RESULT2'] = data['Electronic_Devices']+data['value3']
+data.loc[data['Electronic_Devices'] >= 1, 'RESULT2'] = data['Electronic_Devices']+data['value4']
+
+data=data.drop(['value1','value2','value3','value4'], axis = 1)
+
+data=data.rename(columns={"RESULT1": "Television1", "RESULT2": "Electronic_Devices1"})
+
+#%%
+data.head()
+
+#%%[markdown]
+#Lets Convert the BMI and Physical Activity into Categories
+#%%
+data['bmi']=data['bmi'].round(decimals = 2)
+
+#%%
+data.loc[(data['bmi']) < 18.5, 'BMI_class'] = 'underweight'
+data.loc[(data['bmi'] <= 24.99 ) & (data['bmi'] >= 18.5), 'BMI_class'] = 'healthy'
+data.loc[(data['bmi'] <= 29.99 ) & (data['bmi'] >= 25), 'BMI_class'] = 'overweight'
+data.loc[(data['bmi']) >= 30, 'BMI_class'] = 'obese'
+
+#%%
+
+data.loc[data['Physical_Activity'] == 0, 'PA_Class'] = 'No Activity'
+data.loc[(data['Physical_Activity'] <= 2 ) & (data['Physical_Activity'] >= 1), 'PA_Class'] = 'Minimal'
+data.loc[(data['Physical_Activity'] <= 5 ) & (data['Physical_Activity'] >= 3), 'PA_Class'] = 'Moderate'
+data.loc[(data['Physical_Activity'] <= 7 ) & (data['Physical_Activity'] >= 6), 'PA_Class'] = 'High'
+
+#%%
+
+data["BMI_num"]=data["BMI_class"].replace(['overweight','healthy','underweight','obese'],[3,2,1,0])
+data["PA_num"]=data["PA_Class"].replace(['High','Minimal','Moderate','No Activity'],[3,2,1,0])
+data["MU_Class"]=data["marijuana_use"].replace([1,2],['yes','no'])
+data.head()
+
+#%%
+data_2009=data.copy()
+
+#%%[markdown]
+# Effect of Electronic Device Usage on BMI and Physical Activity
+#%%
+sns.boxplot(x=data_2009["BMI_class"], y=data_2009["Electronic_Devices1"], width=0.3).set(
+    xlabel='BMI', 
+    ylabel='Electronic Device Usage in hours',
+title='BMI vs Electronic Devices usage')
+plt.show()
+
+crosstab, test_results, expected = rp.crosstab(data_2009["BMI_class"], data_2009["Electronic_Devices"],
+                                               test= "chi-square",
+                                               expected_freqs= True,
+                                               prop= "cell")
+
+
+print(test_results)
+
+#%%[markdown]
+# We can rule out the null hypothesis that BMI and 
+# the number of hours spent using electronic devices 
+# are independent variables with a p-value that is close to 0. 
+# There is evidence to support the relationship between BMI 
+# categories and electronic device usage hours.
+
+
+#%%
+sns.boxplot(x=data_2009["PA_Class"], y=data_2009["Electronic_Devices1"], width=0.3).set(
+    xlabel='Physical Activity', 
+    ylabel='Electronic Device Usage in hours',
+title='Physical Activity vs Electronic Devices usage')
+plt.show()
+
+crosstab, test_results, expected = rp.crosstab(data_2009["PA_Class"], data_2009["Electronic_Devices"],
+                                               test= "chi-square",
+                                               expected_freqs= True,
+                                               prop= "cell")
+
+
+print(test_results)
+
+#%%[markdown]
+#We can rule out the null hypothesis that Physical Activity 
+# and the number of hours spent using electronic devices are 
+# independent variables with a p-value that is close to 0. 
+# There is evidence to support the relationship between BMI 
+# categories and electronic device usage hours.
+
+#%%[markdown]
+# Effect of Television Usage on BMI and Physical Activity
+#%%
+sns.boxplot(x=data_2009["BMI_class"], y=data_2009["Television1"], width=0.3).set(
+    xlabel='BMI', 
+    ylabel='Television Usage in hours',
+title='BMI vs Television usage')
+plt.show()
+
+crosstab, test_results, expected = rp.crosstab(data_2009["BMI_class"], data_2009["Television"],
+                                               test= "chi-square",
+                                               expected_freqs= True,
+                                               prop= "cell")
+
+
+print(test_results)
+
+#%%[markdown]
+#We can rule out the null hypothesis that BMI and the
+#  number of hours spent watching television are independent
+#  variables with a p-value that is close to 0. 
+# There is evidence to support the relationship 
+# between BMI categories and television viewing hours.
+
+
+#%%
+sns.boxplot(x=data_2009["PA_Class"], y=data_2009["Television1"], width=0.3).set(
+    xlabel='Physical Activity', 
+    ylabel='Television Usage in hours',
+title='Physical Activity vs Television usage')
+plt.show()
+
+crosstab, test_results, expected = rp.crosstab(data_2009["PA_Class"], data_2009["Television"],
+                                               test= "chi-square",
+                                               expected_freqs= True,
+                                               prop= "cell")
+
+
+print(test_results)
+
+#%%[markdown]
+#We can rule out the null hypothesis that Physical Activity and 
+# the number of hours spent using Television are independent
+#  variables with a p-value that is close to 0. 
+# There is evidence to support the relationship
+#  between BMI categories and electronic device usage hours.
+#%%[markdown]
+# Effect of Marijuana Usage on BMI and Physical Activity
+#%%
+sns.histplot(data = data_2009, x = "BMI_class", kde = True, hue = "MU_Class").set(
+    xlabel='BMI', 
+title='BMI vs Marijuana usage')
+plt.show()
+
+crosstab, test_results, expected = rp.crosstab(data_2009["BMI_class"], data_2009["MU_Class"],
+                                               test= "chi-square",
+                                               expected_freqs= True,
+                                               prop= "cell")
+
+
+print(test_results)
+
+#%%[markdown]
+#We can rule out the null hypothesis that BMI 
+# and the Marijuana use are independent variables with a
+#  p-value that is close to 0. There is evidence to support the 
+# relationship between BMI categories and Marijuana Usage.
+
+
+#%%
+sns.histplot(data = data_2009, x = "PA_Class", kde = True, hue = "MU_Class").set(
+    xlabel='Physical Activity', 
+title='Physical Activity vs Marijuana usage')
+plt.show()
+
+crosstab, test_results, expected = rp.crosstab(data_2009["PA_Class"], data_2009["MU_Class"],
+                                               test= "chi-square",
+                                               expected_freqs= True,
+                                               prop= "cell")
+
+
+print(test_results)
+
+#%%[markdown]
+#With a p-value larger than 0.05, the null hypothesis that 
+# Physical Activity and Marijuana Use are independent variables
+#  cannot be ruled out. There is no proof that certain BMI 
+# categories and marijuana use are related.
+
+#%%[markdown]
+# Lets Build a multinominal Logistic Regression Model
+#
+#
+# Model 1
+# Target Variable : Physical Activity
+#
+# Feautre Variables : Television Usage, Electronic Device Usage, Marijuana Usage
+
+#%%
+y = data_2009['PA_Class']
+X = data_2009[['Television','Electronic_Devices','marijuana_use']]
+
+#%%
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 0)
+
+#%%
+LR_Model = LogisticRegression(multi_class='multinomial', solver='lbfgs', penalty='l2', 
+                           C=1.0, max_iter = 1000000, class_weight='balanced')
+LR_Model.fit(X_train, y_train)
+LR_Predict = LR_Model.predict(X_test)
+
+#%%[markdown]
+#Confusion Matrix
+
+#%%
+
+cm = confusion_matrix(y_test, LR_Predict)
+
+print('\nTrue Positives(TP) = ', cm[0,0])
+
+print('\nFalse Positives(FP) = ', cm[1,0]+cm[2,0]+cm[3,0])
+
+print('\nTrue Negatives(TN) = ', cm[1,1]+cm[1,2]+cm[1,3]+cm[2,1]+cm[2,2]+cm[2,3]+cm[3,1]+cm[3,2]+cm[3,3])
+
+print('\nFalse Negatives(FN) = ', cm[0,1]+cm[0,2]+cm[0,3])
+
+
+TP = cm[0,0]
+TN = cm[1,1]+cm[1,2]+cm[1,3]+cm[2,1]+cm[2,2]+cm[2,3]+cm[3,1]+cm[3,2]+cm[3,3]
+FP = cm[1,0]+cm[2,0]+cm[3,0]
+FN = cm[0,1]+cm[0,2]+cm[0,3]
+
+
+
+
+   
+
+ax= plt.subplot()
+sns.heatmap(cm, annot=True, fmt='g', ax=ax);  #annot=True to annotate cells, ftm='g' to disable scientific notation
+
+ax.set_xlabel('Predicted labels');ax.set_ylabel('True labels'); 
+ax.set_title('Confusion Matrix'); 
+ax.xaxis.set_ticklabels(['No Activity','Minimal','Moderate','High']); ax.yaxis.set_ticklabels(['No Activity','Minimal','Moderate','High']);
+
+
+#%%
+# print classification accuracy
+
+classification_accuracy = (TP + TN) / float(TP + TN + FP + FN)
+
+print('Classification accuracy : {0:0.4f}'.format(classification_accuracy))
+
+# print classification error
+
+classification_error = (FP + FN) / float(TP + TN + FP + FN)
+
+print('Classification error : {0:0.4f}'.format(classification_error))
+
+# print precision score
+
+precision = TP / float(TP + FP)
+
+
+print('Precision : {0:0.4f}'.format(precision))
+
+recall = TP / float(TP + FN)
+
+print('Recall or Sensitivity : {0:0.4f}'.format(recall))
+
+#%%[markdown]
+# Model building Using stats model
+
+#%%
+modellogit = mnlogit(formula='PA_num ~ C(Television)+C(Electronic_Devices)+C(marijuana_use)', data=data_2009)
+modellogitfit = modellogit.fit()
+print( modellogitfit.summary() )
+
+#%%
+print(f'The model\'s pseudo r-squared value is {modellogitfit.prsquared.__round__(4)}')
+
+# Model 2
+# Target Variable : BMI
+#
+# Feautre Variables : Television Usage, Electronic Device Usage, Marijuana Usage
+
+#%%
+y = data_2009['BMI_class']
+X = data_2009[['Television','Electronic_Devices','marijuana_use']]
+
+#%%
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 0)
+
+#%%
+LR_Model = LogisticRegression(multi_class='multinomial', solver='lbfgs', penalty='l2', 
+                           C=1.0, max_iter = 1000000, class_weight='balanced')
+LR_Model.fit(X_train, y_train)
+LR_Predict = LR_Model.predict(X_test)
+
+#%%[markdown]
+#Confusion Matrix
+
+#%%
+
+
+cm = confusion_matrix(y_test, LR_Predict)
+
+print('\nTrue Positives(TP) = ', cm[0,0])
+
+print('\nFalse Positives(FP) = ', cm[1,0]+cm[2,0]+cm[3,0])
+
+print('\nTrue Negatives(TN) = ', cm[1,1]+cm[1,2]+cm[1,3]+cm[2,1]+cm[2,2]+cm[2,3]+cm[3,1]+cm[3,2]+cm[3,3])
+
+print('\nFalse Negatives(FN) = ', cm[0,1]+cm[0,2]+cm[0,3])
+
+
+TP = cm[0,0]
+TN = cm[1,1]+cm[1,2]+cm[1,3]+cm[2,1]+cm[2,2]+cm[2,3]+cm[3,1]+cm[3,2]+cm[3,3]
+FP = cm[1,0]+cm[2,0]+cm[3,0]
+FN = cm[0,1]+cm[0,2]+cm[0,3]
+
+
+ax= plt.subplot()
+sns.heatmap(cm, annot=True, fmt='g', ax=ax);  #annot=True to annotate cells, ftm='g' to disable scientific notation
+
+ax.set_xlabel('Predicted labels');ax.set_ylabel('True labels'); 
+ax.set_title('Confusion Matrix'); 
+ax.xaxis.set_ticklabels(['No Activity','Minimal','Moderate','High']); ax.yaxis.set_ticklabels(['No Activity','Minimal','Moderate','High']);
+
+
+#%%
+# print classification accuracy
+
+classification_accuracy = (TP + TN) / float(TP + TN + FP + FN)
+
+print('Classification accuracy : {0:0.4f}'.format(classification_accuracy))
+
+# print classification error
+
+classification_error = (FP + FN) / float(TP + TN + FP + FN)
+
+print('Classification error : {0:0.4f}'.format(classification_error))
+
+# print precision score
+
+precision = TP / float(TP + FP)
+
+
+print('Precision : {0:0.4f}'.format(precision))
+
+recall = TP / float(TP + FN)
+
+print('Recall or Sensitivity : {0:0.4f}'.format(recall))
+
+#%%[markdown]
+# Model building Using stats model
+
+#%%
+modellogit = mnlogit(formula='BMI_num ~ C(Television)+C(Electronic_Devices)+C(marijuana_use)', data=data_2009)
+modellogitfit = modellogit.fit()
+print( modellogitfit.summary() )
+
+#%%
+print(f'The model\'s pseudo r-squared value is {modellogitfit.prsquared.__round__(4)}')
+
+#%%[markdown]
+#--------------------------Grades BY Television-------------------------------#
+x, y ="Television", "Grades"
+
+df1=data.groupby(x)[y].value_counts(normalize=True)
+df1=df1.mul(100)
+df1=df1.rename('percent').reset_index()
+
+g=sns.catplot(x=x, y='percent', hue=y, kind="bar", data=df1)
+g.ax.set_ylim(0,100)
+g.fig.set_size_inches(20,10)
+plt.title('Effect of Television on Adolescent Grades')
+
+for p in g.ax.patches:
+    txt=str(p.get_height().round(1))+"%"
+    txt_x=p.get_x()
+    txt_y=p.get_height()
+    
+    g.ax.text(txt_x,txt_y,txt)
+    
+plt.show()    
+#%%[markdown]
+
+#--------------------------Grades BY Electronic_Devices-------------------------------#
+x, y ="Electronic_Devices", "Grades"
+
+df1=data.groupby(x)[y].value_counts(normalize=True)
+df1=df1.mul(100)
+df1=df1.rename('percent').reset_index()
+
+g=sns.catplot(x=x, y='percent', hue=y, kind="bar", data=df1)
+g.ax.set_ylim(0,100)
+g.fig.set_size_inches(20,10)
+plt.title('Effect of Electronic Devices on Adolescent Grades')
+
+for p in g.ax.patches:
+    txt=str(p.get_height().round(1))+"%"
+    txt_x=p.get_x()
+    txt_y=p.get_height()
+    
+    g.ax.text(txt_x,txt_y,txt)
+    
+plt.show()
+#%%[markdown]
+#--------------------------Grades BY marijuana_use-------------------------------#
+x, y ="marijuana_use", "Grades"
+
+df1=data.groupby(x)[y].value_counts(normalize=True)
+df1=df1.mul(100)
+df1=df1.rename('percent').reset_index()
+
+g=sns.catplot(x=x, y='percent', hue=y, kind="bar", data=df1)
+g.ax.set_ylim(0,100)
+g.fig.set_size_inches(20,10)
+plt.title('Effect of marijuana_use on Adolescent Grades')
+
+for p in g.ax.patches:
+    txt=str(p.get_height().round(1))+"%"
+    txt_x=p.get_x()
+    txt_y=p.get_height()
+    
+    g.ax.text(txt_x,txt_y,txt)
+    
+plt.show()
+
+#%%
+data.head()
+#%%[markdown]
+#--------------------Synthetic Minority Oversampling Technique (SMOTE)---------------------#
+
+X=data[['race','Electronic_Devices','Television','marijuana_use']]
+#dependent_variable
+y=data[['Grades']]
+
+os=SMOTE(random_state=0)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=100)
+
+columns=X_train.columns
+smote_data_X, smote_data_y=os.fit_resample(X_train, y_train)
+smote_data_X=pd.DataFrame(data=smote_data_X, columns=columns)
+smote_data_y=pd.DataFrame(data=smote_data_y, columns=['Grades'])
+
+'''
+Now, as not all the feature will be contributing towards the prediction, 
+we need to first figure out the most important features that will contribute towards the prediction. 
+This is very crucial to improve the efficiency of the model.
+'''
+feature_names=smote_data_X.columns.to_list()
+model=LogisticRegression(random_state=0).fit(data[feature_names].values, data['Grades'].values)
+#Get the score
+score=model.score(data[feature_names].values, data['Grades'].values)
+print("Logistic Regression score is:",score)
+
+
+w0=model.intercept_[0]
+w=model.coef_[0]
+
+feature_importance=pd.DataFrame(feature_names, columns=['feature'])
+feature_importance['importance']=pow(math.e,w)
+feature_importance=feature_importance.sort_values(by=['importance'], ascending=False)
+feature_importance=feature_importance[:10].sort_values(by=['importance'], ascending=False)
+
+ax=feature_importance[:10].sort_values(by=['importance'], ascending=True).plot.barh(x="feature", y="importance")
+plt.title('Important Feature')
+plt.savefig('feature.png')
+# print(feature_importance)
+
+#%%[markdown]
+#Electronic Devices,Television, Marijuana Use,Race – Decision Tree Classifier
+#MAke a list of all feature
+
+feature_importance_list=feature_importance['feature'].to_list()
+
+X=smote_data_X[feature_importance_list]
+y=smote_data_y['Grades']
+
+X_train, X_test, y_train, y_test=train_test_split(X, y, test_size=0.33, random_state=0)
+
+
+model_dt = DecisionTreeClassifier()
+model_dt.fit(X_train, y_train)
+
+# Check the model performance with the training data
+predictions_dt = model_dt.predict(X_train)
+print("DecisionTreeClassifier", accuracy_score(y_train, predictions_dt))
+
+predictions_dt = model_dt.predict(X_test)
+print("DecisionTreeClassifier TEST: ", accuracy_score(y_test, predictions_dt))
+
+#%%[markdown]
+#Confusion Matrix
+conf_matrix =confusion_matrix(y_test, predictions_dt)
+ax= plt.subplot()
+sns.heatmap(conf_matrix, annot=True, fmt='g', ax=ax);
+ax.set_xlabel('Predicted labels');ax.set_ylabel('True labels'); 
+ax.set_title('Confusion Matrix'); 
+ax.xaxis.set_ticklabels(["A","B","C","D","F","NG","NS"]); 
+ax.yaxis.set_ticklabels(["A","B","C","D","F","NG","NS"]);
+
 
 #%%
 # recoding race from numeric to categorical 
@@ -397,7 +1048,7 @@ sns.heatmap(contigency, annot=True, cmap="Blues", vmin= 40, vmax=36000,fmt='g')
 plt.title("Contingency Table of Race and Grades")
 plt.ylabel("Race")
 #chi-squared test of independence
-stat, p, dof, expected = chi2_contingency(contigency)
+stat, p, dof, expected = stats.chi2_contingency(contigency)
 #checking the significance
 alpha = 0.05
 print("The results of the chi-squared test of independence showed that the p value is " + str(p) + " which indicates a significant dependent relationship between race and grades.")
@@ -476,8 +1127,7 @@ plt.title("Contingency Table of Marijuana Use and Vape Use")
 plt.xlabel('Vape Use')
 plt.ylabel('Marijuana Use')
 
-
-stat, p, dof, expected = chi2_contingency(contigency1)
+stat, p, dof, expected = stats.chi2_contingency(contigency1)
 #checking the significance
 alpha = 0.05
 print("The results of the chi-squared test of independence showed that the p value is " + str(p) + " which indicates a significant dependent relationship between marijuana use and e-cig use.")
@@ -502,10 +1152,7 @@ model = glm(formula="Vape_Use ~ Television + Electronic_Devices + C(marijuana_us
 model = model.fit()
 print(model.summary())
 
-
-from sklearn.model_selection import train_test_split
 x_train, x_test, y_train, y_test = train_test_split(xdata, ydata, test_size=0.3, random_state=1)
-from sklearn.linear_model import LogisticRegression
 
 logit = LogisticRegression()  # instantiate
 logit.fit(x_train, y_train)
@@ -519,12 +1166,10 @@ y_pred = logit.predict(x_test)
 
 #%%[markdown]
 # #### Classification Report and Confusion Matrix of Logistic Regression Predicting Vape Use
-from sklearn.metrics import classification_report
 y_true, y_pred = y_test, logit.predict(x_test)
 print("Classification Report:",end='\n')
 print(classification_report(y_true, y_pred))
 
-from sklearn.metrics import confusion_matrix
 c = confusion_matrix(y_test,y_pred)
 print("Confusion Matrix:",end='\n')
 ax = sns.heatmap(c, annot=True,fmt='g')
@@ -540,8 +1185,6 @@ plt.title("Confusion Matrix")
 # According to the classification report of our logistic regression model, out of all adolescents that the model predicted would use vape products, only about 79% actually do use vape products (precision). Out of all the adolescents that actually do vape, the model only predicted this outcome correctly for 66% of those adolescents (recall). Since the F1-Score is somewhat close to 1, we can assume that the model does a good job of predicting whether or not adolescents will use vape products. The overall accuracy of the model was 77% which is a good sign that the model is efficient at classifying between adolescents who vape and those who do not vape.
 #%%[markdown]
 # #### ROC-AUC of Logistic Regression Model
-from sklearn.metrics import roc_auc_score, roc_curve
-
 ns_probs = [0 for _ in range(len(y_test))]
 lr_probs = logit.predict_proba(x_test)
 lr_probs = lr_probs[:, 1]
@@ -568,9 +1211,7 @@ clf = DecisionTreeClassifier(class_weight='balanced',max_depth=3)
 #creating prediction function to test test data  with model 
 y_pred1 = clf.fit(x_train1, y_train1).predict(x_test1)
 
-from sklearn.metrics import accuracy_score
 print("Accuracy of Decision Tree Classifier is:", accuracy_score(y_test1, y_pred1))
-
 
 y_true1, y_pred1 = y_test1, clf.predict(x_test1)
 print("Classification Report:",end='\n')
@@ -578,7 +1219,6 @@ print(classification_report(y_true1, y_pred1))
 
 cm = confusion_matrix(y_test, y_pred)
 
-import seaborn as sns
 ax = sns.heatmap(cm, annot=True,fmt='g')
 ax.set_xlabel('Actual Values')
 ax.set_ylabel('Predicted')
@@ -612,6 +1252,8 @@ plt.ylabel('True Positive Rate')
 plt.title("Receiver Operating Characteristic - DecisionTree ")
 plt.legend()
 plt.show()
+
+
 #%%[markdown]
 # The ROC curve and AUC score tells us how much our model is capable of distinguishing between adolescents who do and do not vape. Like the logistic regression model, the ROC curve trends somewhat to the upper left corner which indicates a pretty good model. The AUC score is about 0.78 which is acceptable but it would be preferred to be closer to 0.8. Overall, the ROC curve and AUC score indicate that our decision tree does a good job at discriminating between classes of vaping and not vaping.
 #%%[markdown]
@@ -629,3 +1271,5 @@ plt.show()
 # 
 # 
 # Overall, modeling adolescent social behaviors and outcomes is a complicated task. We could potentially include responses from other behavioral questions in the survey to improve the accuracy of our model, but that will require deeper analysis of each new variable we decide to use.
+
+#%%
